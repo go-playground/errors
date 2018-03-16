@@ -6,14 +6,14 @@ Package errors
 [![GoDoc](https://godoc.org/github.com/go-playground/errors?status.svg)](https://godoc.org/github.com/go-playground/errors)
 ![License](https://img.shields.io/dub/l/vibe-d.svg)
 
-Package errors is an errors wrapping package to help propogate not only produce a chain of errors, but also
-stack trace, any tags(additional information) and even a Type classification system to categorize errors into types eg. Permanent vs Transient.
+Package errors is an errors wrapping package to help propagate and chain errors as well as attach
+stack traces, tags(additional information) and even a Type classification system to categorize errors into types eg. Permanent vs Transient.
 
 
 Common Questions
 
 Why another package?
-Because most of the existing packages either don't take the error handling far enough, too far or down right unfriendly to use/consume. 
+Because IMO most of the existing packages either don't take the error handling far enough, too far or down right unfriendly to use/consume. 
 
 Features
 --------

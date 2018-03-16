@@ -28,7 +28,9 @@ func newWrapped(err error, prefix string) *Wrapped {
 // Wrapped contains a single error entry, unless it's the top level error, in
 // which case it only contains an array of errors
 type Wrapped struct {
-	// hidden field with wrapped errors, will expose a helper method to get this
+	// Errors contains the chain of errors and is only set on the top level error
+	// so if len() > 0 it's the top level error and no other error information is
+	// on this object, but within the array of errors.
 	Errors []*Wrapped
 
 	// Err is the wrapped error, either the original or already wrapped
