@@ -29,7 +29,7 @@ func newWrapped(err error, prefix string) *Wrapped {
 // which case it only contains an array of errors
 type Wrapped struct {
 	// hidden field with wrapped errors, will expose a helper method to get this
-	errors []*Wrapped
+	Errors []*Wrapped
 
 	// Err is the wrapped error, either the original or already wrapped
 	Err error
@@ -49,11 +49,11 @@ type Wrapped struct {
 
 // Error returns the formatted error string
 func (w *Wrapped) Error() string {
-	if len(w.errors) > 0 {
-		lines := make([]string, 0, len(w.errors))
+	if len(w.Errors) > 0 {
+		lines := make([]string, 0, len(w.Errors))
 		// source=<source> <prefix>: <error> tag=value tag2=value2 types=type1,type2
-		for i := len(w.errors) - 1; i >= 0; i-- {
-			line := w.errors[i].parseLine()
+		for i := len(w.Errors) - 1; i >= 0; i-- {
+			line := w.Errors[i].parseLine()
 			lines = append(lines, line)
 		}
 		return strings.Join(lines, "\n")
@@ -80,7 +80,7 @@ func (w *Wrapped) parseLine() string {
 
 // helper method to get the current *Wrapped from the top level
 func (w *Wrapped) current() *Wrapped {
-	return w.errors[len(w.errors)-1]
+	return w.Errors[len(w.Errors)-1]
 }
 
 // WithTags allows the addition of multiple tags

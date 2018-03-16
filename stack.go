@@ -148,3 +148,11 @@ func Stack() Frame {
 	s := callers()
 	return fr(s, 0)
 }
+
+// StackLevel returns a stack from for parsing into a trace line
+// this is primarily used by other libraries who use this pacakge
+// internally as the level needs to be adjusted.
+func StackLevel(level int) Frame {
+	s := callers()
+	return fr(s, level)
+}

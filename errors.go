@@ -4,11 +4,11 @@ package errors
 // a stack trace.
 func Wrap(err error, prefix string) *Wrapped {
 	if w, ok := err.(*Wrapped); ok {
-		w.errors = append(w.errors, newWrapped(err, prefix))
+		w.Errors = append(w.Errors, newWrapped(err, prefix))
 		return w
 	}
 	return &Wrapped{
-		errors: []*Wrapped{newWrapped(err, prefix)},
+		Errors: []*Wrapped{newWrapped(err, prefix)},
 	}
 }
 
@@ -19,9 +19,9 @@ func HasType(err error, typ string) bool {
 	if !ok {
 		return false
 	}
-	for i := len(w.errors) - 1; i >= 0; i-- {
-		for j := 0; j < len(w.errors[i].Types); j++ {
-			if w.errors[i].Types[j] == typ {
+	for i := len(w.Errors) - 1; i >= 0; i-- {
+		for j := 0; j < len(w.Errors[i].Types); j++ {
+			if w.Errors[i].Types[j] == typ {
 				return true
 			}
 		}
@@ -32,7 +32,12 @@ func HasType(err error, typ string) bool {
 // Cause extracts and returns the root error
 func Cause(err error) error {
 	if w, ok := err.(*Wrapped); ok {
-		return w.errors[0]
+		// if root level error
+		if len(w.Errors) > 0 {
+			return w.Errors[0]
+		}
+		// already extracted error
+		return w
 	}
 	return err
 }
@@ -42,8 +47,8 @@ func Cause(err error) error {
 func IsErr(err, errType error) bool {
 	if w, ok := err.(*Wrapped); ok {
 		// if root level error
-		if len(w.errors) > 0 {
-			return w.errors[0].Err == errType
+		if len(w.Errors) > 0 {
+			return w.Errors[0].Err == errType
 		}
 		// already extracted error
 		return w.Err == errType
