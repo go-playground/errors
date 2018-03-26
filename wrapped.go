@@ -23,6 +23,7 @@ func newWrapped(err error, prefix string) *Wrapped {
 		Prefix: prefix,
 		Source: st(),
 	}
+
 }
 
 // Wrapped contains a single error entry, unless it's the top level error, in

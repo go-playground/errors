@@ -1,6 +1,6 @@
 Package errors
 ============
-![Project status](https://img.shields.io/badge/version-1.0.0-green.svg)
+![Project status](https://img.shields.io/badge/version-1.1.0-green.svg)
 [![Build Status](https://semaphoreci.com/api/v1/joeybloggs/errors/branches/master/badge.svg)](https://semaphoreci.com/joeybloggs/errors)
 [![Go Report Card](https://goreportcard.com/badge/github.com/go-playground/errors)](https://goreportcard.com/report/github.com/go-playground/errors)
 [![GoDoc](https://godoc.org/github.com/go-playground/errors?status.svg)](https://godoc.org/github.com/go-playground/errors)
@@ -18,6 +18,7 @@ Because IMO most of the existing packages either don't take the error handling f
 Features
 --------
 - [x] works with go-playground/log, the Tags will be added as Field Key Values and Types will be concatenated as well when using `WithError`
+- [x] helpers to extract and classify error types using `RegisterHelper(...)`, many already existing such as ioerrors, neterrors, awserrors...
 
 Installation
 ------------

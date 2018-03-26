@@ -119,3 +119,16 @@ func TestIsErr(t *testing.T) {
 		t.Fatalf("want %t got %t", true, false)
 	}
 }
+
+func TestHelpers(t *testing.T) {
+	fn := func(w *Wrapped, err error) (cont bool) {
+		w.WithTypes("Test").WithTags(T("test", "tag")).WithTag("foo", "bar")
+		return false
+	}
+	RegisterHelper(fn)
+
+	err := Wrap(io.EOF, "prefix")
+	if !HasType(err, "Test") {
+		t.Errorf("Expected to have type 'Test'")
+	}
+}
