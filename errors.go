@@ -1,5 +1,7 @@
 package errors
 
+import "errors"
+
 var (
 	helpers []Helper
 )
@@ -14,6 +16,10 @@ func RegisterHelper(helper Helper) {
 // Wrap encapsulates the error, stores a contextual prefix and automatically obtains
 // a stack trace.
 func Wrap(err error, prefix string) (w *Wrapped) {
+	return wrap(err, prefix)
+}
+
+func wrap(err error, prefix string) (w *Wrapped) {
 	var ok bool
 	if w, ok = err.(*Wrapped); ok {
 		w.Errors = append(w.Errors, newWrapped(err, prefix))
@@ -72,4 +78,9 @@ func IsErr(err, errType error) bool {
 		return w.Err == errType
 	}
 	return err == errType
+}
+
+// New creates an error with the provided text and automatically wraps it with line information.
+func New(s string) *Wrapped {
+	return wrap(errors.New(s), "")
 }

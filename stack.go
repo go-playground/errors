@@ -114,7 +114,7 @@ func funcname(name string) string {
 
 func st() string {
 	s := callers()
-	f := fr(s, 2)
+	f := fr(s, 3)
 	name := fmt.Sprintf("%n", f)
 	file := fmt.Sprintf("%+s", f)
 	line := fmt.Sprintf("%d", f)
