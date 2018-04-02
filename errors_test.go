@@ -98,8 +98,8 @@ func TestCause(t *testing.T) {
 	err := Wrap(defaultErr, "prefix")
 	err = Wrap(err, "prefix2")
 	cause := Cause(err)
-	expect := "prefix: this is an error"
-	if !strings.HasSuffix(cause.Error(), expect) {
+	expect := "this is an error"
+	if cause.Error() != expect {
 		t.Fatalf("want %s got %s", expect, err.Error())
 	}
 }
@@ -108,20 +108,20 @@ func TestIsErr(t *testing.T) {
 	err := Wrap(io.EOF, "prefix")
 	err = Wrap(err, "prefix2")
 
-	if !IsErr(err, io.EOF) {
+	if Cause(err) != io.EOF {
 		t.Fatalf("want %t got %t", true, false)
 	}
 	cause := Cause(err)
-	if !IsErr(cause, io.EOF) {
+	if Cause(cause) != io.EOF {
 		t.Fatalf("want %t got %t", true, false)
 	}
-	if !IsErr(io.EOF, io.EOF) {
+	if Cause(io.EOF) != io.EOF {
 		t.Fatalf("want %t got %t", true, false)
 	}
 }
 
 func TestHelpers(t *testing.T) {
-	fn := func(w *Wrapped, err error) (cont bool) {
+	fn := func(w Chain, err error) (cont bool) {
 		w.WithTypes("Test").WithTags(T("test", "tag")).WithTag("foo", "bar")
 		return false
 	}

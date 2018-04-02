@@ -19,12 +19,8 @@ func main() {
 	fmt.Println(cause)
 
 	// can even still inspect the internal error
-	fmt.Println(errors.IsErr(err, io.EOF)) // will extract the cause for you
-	fmt.Println(errors.IsErr(cause, io.EOF))
-
-	// or manually with access to base fields
-	wrapped := cause.(*errors.Wrapped)
-	fmt.Println(wrapped.Err == io.EOF)
+	fmt.Println(errors.Cause(err) == io.EOF) // will extract the cause for you
+	fmt.Println(errors.Cause(cause) == io.EOF)
 }
 
 func level1(value string) error {

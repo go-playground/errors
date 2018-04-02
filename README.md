@@ -1,6 +1,6 @@
 Package errors
 ============
-![Project status](https://img.shields.io/badge/version-1.3.0-green.svg)
+![Project status](https://img.shields.io/badge/version-2.0.0-green.svg)
 [![Build Status](https://semaphoreci.com/api/v1/joeybloggs/errors/branches/master/badge.svg)](https://semaphoreci.com/joeybloggs/errors)
 [![Go Report Card](https://goreportcard.com/badge/github.com/go-playground/errors)](https://goreportcard.com/report/github.com/go-playground/errors)
 [![GoDoc](https://godoc.org/github.com/go-playground/errors?status.svg)](https://godoc.org/github.com/go-playground/errors)
@@ -51,12 +51,8 @@ func main() {
 	fmt.Println(cause)
 
 	// can even still inspect the internal error
-	fmt.Println(errors.IsErr(err, io.EOF)) // will extract the cause for you
-	fmt.Println(errors.IsErr(cause, io.EOF))
-
-	// or manually with access to base fields
-	wrapped := cause.(*errors.Wrapped)
-	fmt.Println(wrapped.Err == io.EOF)
+	fmt.Println(errors.Cause(err) == io.EOF) // will extract the cause for you
+	fmt.Println(errors.Cause(cause) == io.EOF)
 }
 
 func level1(value string) error {
