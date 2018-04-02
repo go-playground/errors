@@ -10,22 +10,22 @@ import (
 func IOErrors(c errors.Chain, err error) (cont bool) {
 	switch err {
 	case io.EOF:
-		c.WithTypes("io")
+		c.AddTypes("io")
 		return
 	case io.ErrClosedPipe:
-		c.WithTypes("Permanent", "io")
+		c.AddTypes("Permanent", "io")
 		return
 	case io.ErrNoProgress:
-		c.WithTypes("Permanent", "io")
+		c.AddTypes("Permanent", "io")
 		return
 	case io.ErrShortBuffer:
-		c.WithTypes("Permanent", "io")
+		c.AddTypes("Permanent", "io")
 		return
 	case io.ErrShortWrite:
-		c.WithTypes("Permanent", "io")
+		c.AddTypes("Permanent", "io")
 		return
 	case io.ErrUnexpectedEOF:
-		c.WithTypes("Transient", "io")
+		c.AddTypes("Transient", "io")
 		return
 	}
 	return true

@@ -42,7 +42,7 @@ func TestTags(t *testing.T) {
 	defaultErr := fmt.Errorf("this is an %s", "error")
 
 	for i, tt := range tests {
-		err := Wrap(defaultErr, "prefix").WithTags(tt.tags...)
+		err := Wrap(defaultErr, "prefix").AddTags(tt.tags...)
 		if !strings.HasSuffix(err.Error(), tt.err) {
 			t.Fatalf("IDX: %d want %s got %s", i, tt.err, err.Error())
 		}
@@ -65,7 +65,7 @@ func TestTypes(t *testing.T) {
 	defaultErr := fmt.Errorf("this is an %s", "error")
 
 	for i, tt := range tests {
-		err := Wrap(defaultErr, "prefix").WithTags(tt.tags...).WithTypes(tt.types...)
+		err := Wrap(defaultErr, "prefix").AddTags(tt.tags...).AddTypes(tt.types...)
 		if !strings.HasSuffix(err.Error(), tt.err) {
 			t.Fatalf("IDX: %d want %s got %s", i, tt.err, err.Error())
 		}
@@ -86,7 +86,7 @@ func TestHasType(t *testing.T) {
 	defaultErr := fmt.Errorf("this is an %s", "error")
 
 	for i, tt := range tests {
-		err := Wrap(defaultErr, "prefix").WithTypes(tt.types...)
+		err := Wrap(defaultErr, "prefix").AddTypes(tt.types...)
 		if !HasType(err, tt.typ) {
 			t.Fatalf("IDX: %d want %t got %t", i, true, false)
 		}
@@ -122,7 +122,7 @@ func TestCause2(t *testing.T) {
 
 func TestHelpers(t *testing.T) {
 	fn := func(w Chain, err error) (cont bool) {
-		w.WithTypes("Test").WithTags(T("test", "tag")).WithTag("foo", "bar")
+		w.AddTypes("Test").AddTags(T("test", "tag")).AddTag("foo", "bar")
 		return false
 	}
 	RegisterHelper(fn)
@@ -134,7 +134,7 @@ func TestHelpers(t *testing.T) {
 }
 
 func TestLookupTag(t *testing.T) {
-	err := Wrap(io.EOF, "prefix").WithTag("Key", "Value")
+	err := Wrap(io.EOF, "prefix").AddTag("Key", "Value")
 	if LookupTag(err, "Key").(string) != "Value" {
 		t.Fatalf("want %s got %v", "Value", LookupTag(err, "Key"))
 	}

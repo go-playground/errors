@@ -14,7 +14,7 @@ func NETErrors(c errors.Chain, err error) (cont bool) {
 		if e.Temporary() {
 			tp = "Transient"
 		}
-		c.WithTypes(tp, "net").WithTags(
+		c.AddTypes(tp, "net").AddTags(
 			errors.T("addr", e.Addr),
 			errors.T("is_timeout", e.Timeout()),
 			errors.T("is_temporary", e.Temporary()),
@@ -26,7 +26,7 @@ func NETErrors(c errors.Chain, err error) (cont bool) {
 		if e.Temporary() {
 			tp = "Transient"
 		}
-		c.WithTypes(tp, "net").WithTags(
+		c.AddTypes(tp, "net").AddTags(
 			errors.T("name", e.Name),
 			errors.T("server", e.Server),
 			errors.T("is_timeout", e.Timeout()),
@@ -35,7 +35,7 @@ func NETErrors(c errors.Chain, err error) (cont bool) {
 		return false
 
 	case *net.ParseError:
-		c.WithTypes("Permanent", "net").WithTags(
+		c.AddTypes("Permanent", "net").AddTags(
 			errors.T("type", e.Type),
 			errors.T("text", e.Text),
 		)
@@ -46,7 +46,7 @@ func NETErrors(c errors.Chain, err error) (cont bool) {
 		if e.Temporary() {
 			tp = "Transient"
 		}
-		c.WithTypes(tp, "net").WithTags(
+		c.AddTypes(tp, "net").AddTags(
 			errors.T("op", e.Op),
 			errors.T("net", e.Net),
 			errors.T("addr", e.Addr),
@@ -60,7 +60,7 @@ func NETErrors(c errors.Chain, err error) (cont bool) {
 		if e.Temporary() {
 			tp = "Transient"
 		}
-		c.WithTypes(tp, "net").WithTags(
+		c.AddTypes(tp, "net").AddTags(
 			errors.T("is_timeout", e.Timeout()),
 			errors.T("is_temporary", e.Temporary()),
 		)
@@ -68,7 +68,7 @@ func NETErrors(c errors.Chain, err error) (cont bool) {
 
 	switch err {
 	case net.ErrWriteToConnected:
-		c.WithTypes("Transient", "net")
+		c.AddTypes("Transient", "net")
 		return false
 	}
 	return true

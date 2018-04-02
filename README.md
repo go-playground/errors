@@ -64,7 +64,7 @@ func level1(value string) error {
 
 func level2(value string) error {
 	err := fmt.Errorf("this is an %s", "error")
-	return errors.Wrap(err, "failed to do something").WithTypes("Permanent").WithTags(errors.T("value", value))
+	return errors.Wrap(err, "failed to do something").AddTypes("Permanent").AddTags(errors.T("value", value))
 }
 ```
 
