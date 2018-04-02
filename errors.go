@@ -1,6 +1,8 @@
 package errors
 
-import "errors"
+import (
+	"errors"
+)
 
 var (
 	helpers []Helper
@@ -13,74 +15,70 @@ func RegisterHelper(helper Helper) {
 	helpers = append(helpers, helper)
 }
 
+// New creates an error with the provided text and automatically wraps it with line information.
+func New(s string) Chain {
+	return wrap(errors.New(s), "")
+}
+
 // Wrap encapsulates the error, stores a contextual prefix and automatically obtains
 // a stack trace.
-func Wrap(err error, prefix string) (w *Wrapped) {
+func Wrap(err error, prefix string) Chain {
 	return wrap(err, prefix)
 }
 
-func wrap(err error, prefix string) (w *Wrapped) {
+func wrap(err error, prefix string) (c Chain) {
 	var ok bool
-	if w, ok = err.(*Wrapped); ok {
-		w.Errors = append(w.Errors, newWrapped(err, prefix))
+	if c, ok = err.(Chain); ok {
+		c = append(c, newLink(err, prefix))
 	} else {
-		w = &Wrapped{
-			Errors: []*Wrapped{newWrapped(err, prefix)},
-		}
+		c = Chain{newLink(err, prefix)}
 	}
 	for _, h := range helpers {
-		if !h(w, err) {
+		if !h(c, err) {
 			break
 		}
 	}
 	return
 }
 
+// Cause extracts and returns the root wrapped error (the naked error with no additional information
+func Cause(err error) error {
+	switch t := err.(type) {
+	case Chain:
+		return t[0].Err
+	default:
+		return err
+	}
+	// TODO: lookup via Cause interface recursively on error
+}
+
 // HasType is a helper function that will recurse up from the root error and check that the provided type
 // is present using an equality check
 func HasType(err error, typ string) bool {
-	w, ok := err.(*Wrapped)
-	if !ok {
-		return false
-	}
-	for i := len(w.Errors) - 1; i >= 0; i-- {
-		for j := 0; j < len(w.Errors[i].Types); j++ {
-			if w.Errors[i].Types[j] == typ {
-				return true
+	switch t := err.(type) {
+	case Chain:
+		for i := len(t) - 1; i >= 0; i-- {
+			for j := 0; j < len(t[i].Types); j++ {
+				if t[i].Types[j] == typ {
+					return true
+				}
 			}
 		}
 	}
 	return false
 }
 
-// Cause extracts and returns the root error
-func Cause(err error) error {
-	if w, ok := err.(*Wrapped); ok {
-		// if root level error
-		if len(w.Errors) > 0 {
-			return w.Errors[0]
+// LookupTag recursively searches for the provided tag and returns it's value or nil
+func LookupTag(err error, key string) interface{} {
+	switch t := err.(type) {
+	case Chain:
+		for i := len(t) - 1; i >= 0; i-- {
+			for j := 0; j < len(t[i].Tags); j++ {
+				if t[i].Tags[j].Key == key {
+					return t[i].Tags[j].Value
+				}
+			}
 		}
-		// already extracted error
-		return w
 	}
-	return err
-}
-
-// IsErr will fetch the root error, and check the original error against the provided type
-// eg. errors.IsErr(io.EOF)
-func IsErr(err, errType error) bool {
-	if w, ok := err.(*Wrapped); ok {
-		// if root level error
-		if len(w.Errors) > 0 {
-			return w.Errors[0].Err == errType
-		}
-		// already extracted error
-		return w.Err == errType
-	}
-	return err == errType
-}
-
-// New creates an error with the provided text and automatically wraps it with line information.
-func New(s string) *Wrapped {
-	return wrap(errors.New(s), "")
+	return nil
 }

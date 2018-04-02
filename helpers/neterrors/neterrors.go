@@ -7,14 +7,14 @@ import (
 )
 
 // NETErrors helps classify io related errors
-func NETErrors(w *errors.Wrapped, err error) (cont bool) {
+func NETErrors(c errors.Chain, err error) (cont bool) {
 	switch e := err.(type) {
 	case *net.AddrError:
 		tp := "Permanent"
 		if e.Temporary() {
 			tp = "Transient"
 		}
-		w.WithTypes(tp, "net").WithTags(
+		c.WithTypes(tp, "net").WithTags(
 			errors.T("addr", e.Addr),
 			errors.T("is_timeout", e.Timeout()),
 			errors.T("is_temporary", e.Temporary()),
@@ -26,7 +26,7 @@ func NETErrors(w *errors.Wrapped, err error) (cont bool) {
 		if e.Temporary() {
 			tp = "Transient"
 		}
-		w.WithTypes(tp, "net").WithTags(
+		c.WithTypes(tp, "net").WithTags(
 			errors.T("name", e.Name),
 			errors.T("server", e.Server),
 			errors.T("is_timeout", e.Timeout()),
@@ -35,7 +35,7 @@ func NETErrors(w *errors.Wrapped, err error) (cont bool) {
 		return false
 
 	case *net.ParseError:
-		w.WithTypes("Permanent", "net").WithTags(
+		c.WithTypes("Permanent", "net").WithTags(
 			errors.T("type", e.Type),
 			errors.T("text", e.Text),
 		)
@@ -46,7 +46,7 @@ func NETErrors(w *errors.Wrapped, err error) (cont bool) {
 		if e.Temporary() {
 			tp = "Transient"
 		}
-		w.WithTypes(tp, "net").WithTags(
+		c.WithTypes(tp, "net").WithTags(
 			errors.T("op", e.Op),
 			errors.T("net", e.Net),
 			errors.T("addr", e.Addr),
@@ -60,7 +60,7 @@ func NETErrors(w *errors.Wrapped, err error) (cont bool) {
 		if e.Temporary() {
 			tp = "Transient"
 		}
-		w.WithTypes(tp, "net").WithTags(
+		c.WithTypes(tp, "net").WithTags(
 			errors.T("is_timeout", e.Timeout()),
 			errors.T("is_temporary", e.Temporary()),
 		)
@@ -68,7 +68,7 @@ func NETErrors(w *errors.Wrapped, err error) (cont bool) {
 
 	switch err {
 	case net.ErrWriteToConnected:
-		w.WithTypes("Transient", "net")
+		c.WithTypes("Transient", "net")
 		return false
 	}
 	return true

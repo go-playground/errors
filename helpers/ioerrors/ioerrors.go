@@ -7,25 +7,25 @@ import (
 )
 
 // IOErrors helps classify io related errors
-func IOErrors(w *errors.Wrapped, err error) (cont bool) {
+func IOErrors(c errors.Chain, err error) (cont bool) {
 	switch err {
 	case io.EOF:
-		w.WithTypes("io")
+		c.WithTypes("io")
 		return
 	case io.ErrClosedPipe:
-		w.WithTypes("Permanent", "io")
+		c.WithTypes("Permanent", "io")
 		return
 	case io.ErrNoProgress:
-		w.WithTypes("Permanent", "io")
+		c.WithTypes("Permanent", "io")
 		return
 	case io.ErrShortBuffer:
-		w.WithTypes("Permanent", "io")
+		c.WithTypes("Permanent", "io")
 		return
 	case io.ErrShortWrite:
-		w.WithTypes("Permanent", "io")
+		c.WithTypes("Permanent", "io")
 		return
 	case io.ErrUnexpectedEOF:
-		w.WithTypes("Transient", "io")
+		c.WithTypes("Transient", "io")
 		return
 	}
 	return true
