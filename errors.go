@@ -46,8 +46,6 @@ func Cause(err error) error {
 	switch t := err.(type) {
 	case Chain:
 		return t[0].Err
-	case *Link:
-		return t.Err
 	default:
 		return err
 	}
@@ -66,12 +64,6 @@ func HasType(err error, typ string) bool {
 				}
 			}
 		}
-	case *Link:
-		for i := 0; i < len(t.Types); i++ {
-			if t.Types[i] == typ {
-				return true
-			}
-		}
 	}
 	return false
 }
@@ -85,12 +77,6 @@ func LookupTag(err error, key string) interface{} {
 				if t[i].Tags[j].Key == key {
 					return t[i].Tags[j].Value
 				}
-			}
-		}
-	case *Link:
-		for i := 0; i < len(t.Tags); i++ {
-			if t.Tags[i].Key == key {
-				return t.Tags[i].Value
 			}
 		}
 	}

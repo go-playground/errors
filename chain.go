@@ -34,7 +34,7 @@ func (c Chain) Error() string {
 	lines := make([]string, 0, len(c))
 	// source=<source> <prefix>: <error> tag=value tag2=value2 types=type1,type2
 	for i := len(c) - 1; i >= 0; i-- {
-		line := c[i].Error()
+		line := c[i].formatError()
 		lines = append(lines, line)
 	}
 	return strings.Join(lines, "\n")
@@ -60,17 +60,15 @@ type Link struct {
 	Source string
 }
 
-// Error prints a single Links error
-func (l *Link) Error() string {
+// formatError prints a single Links error
+func (l *Link) formatError() string {
 	line := fmt.Sprintf("source=%s ", l.Source)
 
 	if l.Prefix != "" {
 		line += l.Prefix + ": "
 	}
 
-	if _, isLink := l.Err.(*Link); !isLink {
-		line += l.Err.Error()
-	}
+	line += l.Err.Error()
 
 	for _, tag := range l.Tags {
 		line += fmt.Sprintf(" %s=%v", tag.Key, tag.Value)
