@@ -75,3 +75,24 @@ func HasType(err error, typ string) bool {
 	}
 	return false
 }
+
+// LookupTag recursively searches for the provided tag and returns it's value or nil
+func LookupTag(err error, key string) interface{} {
+	switch t := err.(type) {
+	case Chain:
+		for i := len(t) - 1; i >= 0; i-- {
+			for j := 0; j < len(t[i].Tags); j++ {
+				if t[i].Tags[j].Key == key {
+					return t[i].Tags[j].Value
+				}
+			}
+		}
+	case *Link:
+		for i := 0; i < len(t.Tags); i++ {
+			if t.Tags[i].Key == key {
+				return t.Tags[i].Value
+			}
+		}
+	}
+	return nil
+}

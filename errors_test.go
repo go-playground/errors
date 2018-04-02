@@ -104,7 +104,7 @@ func TestCause(t *testing.T) {
 	}
 }
 
-func TestIsErr(t *testing.T) {
+func TestCause2(t *testing.T) {
 	err := Wrap(io.EOF, "prefix")
 	err = Wrap(err, "prefix2")
 
@@ -130,5 +130,12 @@ func TestHelpers(t *testing.T) {
 	err := Wrap(io.EOF, "prefix")
 	if !HasType(err, "Test") {
 		t.Errorf("Expected to have type 'Test'")
+	}
+}
+
+func TestLookupTag(t *testing.T) {
+	err := Wrap(io.EOF, "prefix").WithTag("Key", "Value")
+	if LookupTag(err, "Key").(string) != "Value" {
+		t.Fatalf("want %s got %v", "Value", LookupTag(err, "Key"))
 	}
 }
