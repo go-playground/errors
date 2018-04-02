@@ -9,22 +9,22 @@ import (
 func AWSErrors(c errors.Chain, err error) (cont bool) {
 	switch e := err.(type) {
 	case awserr.BatchError:
-		c.WithTypes("Transient", "Batch").WithTags(errors.T("aws_error_code", e.Code()))
+		c.AddTypes("Transient", "Batch").AddTags(errors.T("aws_error_code", e.Code()))
 		return
 
 	case awserr.BatchedErrors:
-		c.WithTypes("Transient", "Batch")
+		c.AddTypes("Transient", "Batch")
 		return
 
 	case awserr.RequestFailure:
-		c.WithTypes("Transient", "Request").WithTags(
+		c.AddTypes("Transient", "Request").AddTags(
 			errors.T("status_code", e.StatusCode()),
 			errors.T("request_id", e.RequestID()),
 		)
 		return
 
 	case awserr.Error:
-		c.WithTypes("General", "Error").WithTags(errors.T("aws_error_code", e.Code()))
+		c.AddTypes("General", "Error").AddTags(errors.T("aws_error_code", e.Code()))
 		return
 	}
 	return true

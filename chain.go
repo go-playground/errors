@@ -50,7 +50,7 @@ type Link struct {
 	// Prefix contains the error prefix text
 	Prefix string
 
-	// Type stores one or more categorized types of error set by the caller using WithTypes and is optional
+	// Type stores one or more categorized types of error set by the caller using AddTypes and is optional
 	Types []string
 
 	// Tags contains an array of tags associated with this error, if any
@@ -85,8 +85,8 @@ func (c Chain) current() *Link {
 	return c[len(c)-1]
 }
 
-// WithTags allows the addition of multiple tags
-func (c Chain) WithTags(tags ...Tag) Chain {
+// AddTags allows the addition of multiple tags
+func (c Chain) AddTags(tags ...Tag) Chain {
 	l := c.current()
 	if len(l.Tags) == 0 {
 		l.Tags = make([]Tag, 0, len(tags))
@@ -95,13 +95,13 @@ func (c Chain) WithTags(tags ...Tag) Chain {
 	return c
 }
 
-// WithTag allows the addition of a single tag
-func (c Chain) WithTag(key string, value interface{}) Chain {
-	return c.WithTags(Tag{Key: key, Value: value})
+// AddTag allows the addition of a single tag
+func (c Chain) AddTag(key string, value interface{}) Chain {
+	return c.AddTags(Tag{Key: key, Value: value})
 }
 
-// WithTypes sets one or more categorized types on the Link error
-func (c Chain) WithTypes(typ ...string) Chain {
+// AddTypes sets one or more categorized types on the Link error
+func (c Chain) AddTypes(typ ...string) Chain {
 	l := c.current()
 	l.Types = append(l.Types, typ...)
 	return c
