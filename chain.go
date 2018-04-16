@@ -106,3 +106,8 @@ func (c Chain) AddTypes(typ ...string) Chain {
 	l.Types = append(l.Types, typ...)
 	return c
 }
+
+// Wrap adds another contextual prefix to the error chain
+func (c Chain) Wrap(prefix string) Chain {
+	return wrap(c, prefix)
+}

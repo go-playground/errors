@@ -8,22 +8,31 @@ import (
 )
 
 func TestWrap(t *testing.T) {
+	defaultErr := fmt.Errorf("this is an %s", "error")
+	err1 := Wrap(defaultErr, "prefix 1")
+	err2 := err1.Wrap("prefix 2")
+
 	tests := []struct {
+		err Chain
 		pre string
 		suf string
 	}{
 		{
-			pre: "source=TestWrap: ",
-			suf: "errors_test.go:24 prefix: this is an error",
+			err: err1,
+			pre: "TestWrap: ",
+			suf: "errors_test.go:12",
+		},
+		{
+			err: err2,
+			pre: "TestWrap: ",
+			suf: "errors_test.go:13",
 		},
 	}
 
-	defaultErr := fmt.Errorf("this is an %s", "error")
-
 	for i, tt := range tests {
-		err := Wrap(defaultErr, "prefix")
-		if !strings.HasSuffix(err.Error(), tt.suf) || !strings.HasPrefix(err.Error(), tt.pre) {
-			t.Fatalf("IDX: %d want %s<path>%s got %s", i, tt.pre, tt.suf, err.Error())
+		link := tt.err.current()
+		if !strings.HasSuffix(link.Source, tt.suf) || !strings.HasPrefix(link.Source, tt.pre) {
+			t.Fatalf("IDX: %d want %s<path>%s got %s", i, tt.pre, tt.suf, link.Source)
 		}
 	}
 }
