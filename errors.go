@@ -17,21 +17,27 @@ func RegisterHelper(helper Helper) {
 
 // New creates an error with the provided text and automatically wraps it with line information.
 func New(s string) Chain {
-	return wrap(errors.New(s), "")
+	return wrap(errors.New(s), "", 0)
 }
 
 // Wrap encapsulates the error, stores a contextual prefix and automatically obtains
 // a stack trace.
 func Wrap(err error, prefix string) Chain {
-	return wrap(err, prefix)
+	return wrap(err, prefix, 0)
 }
 
-func wrap(err error, prefix string) (c Chain) {
+// WrapSkipFrames is a special version of Wrap that skips extra n frames when determining error location.
+// Normally only used when wrapping the library
+func WrapSkipFrames(err error, prefix string, n uint) Chain {
+	return wrap(err, prefix, int(n))
+}
+
+func wrap(err error, prefix string, skipFrames int) (c Chain) {
 	var ok bool
 	if c, ok = err.(Chain); ok {
-		c = append(c, newLink(err, prefix))
+		c = append(c, newLink(err, prefix, skipFrames))
 	} else {
-		c = Chain{newLink(err, prefix)}
+		c = Chain{newLink(err, prefix, skipFrames)}
 	}
 	for _, h := range helpers {
 		if !h(c, err) {

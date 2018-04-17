@@ -9,8 +9,14 @@ import (
 
 func TestWrap(t *testing.T) {
 	defaultErr := fmt.Errorf("this is an %s", "error")
+	testWrapper := func (err error, prefix string) Chain {
+		return WrapSkipFrames(err, prefix, 1)
+	}
+
+	err0 := New("42")
 	err1 := Wrap(defaultErr, "prefix 1")
 	err2 := err1.Wrap("prefix 2")
+	err3 := testWrapper(err2, "prefix 3")
 
 	tests := []struct {
 		err Chain
@@ -18,14 +24,24 @@ func TestWrap(t *testing.T) {
 		suf string
 	}{
 		{
+			err: err0,
+			pre: "TestWrap: ",
+			suf: "errors_test.go:16",
+		},
+		{
 			err: err1,
 			pre: "TestWrap: ",
-			suf: "errors_test.go:12",
+			suf: "errors_test.go:17",
 		},
 		{
 			err: err2,
 			pre: "TestWrap: ",
-			suf: "errors_test.go:13",
+			suf: "errors_test.go:18",
+		},
+		{
+			err: err3,
+			pre: "TestWrap: ",
+			suf: "errors_test.go:19",
 		},
 	}
 
