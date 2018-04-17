@@ -112,9 +112,9 @@ func funcname(name string) string {
 	return name[i+1:]
 }
 
-func st() string {
+func st(skipFrames int) string {
 	s := callers()
-	f := fr(s, 3)
+	f := fr(s, 3 + skipFrames)
 	name := fmt.Sprintf("%n", f)
 	file := fmt.Sprintf("%+s", f)
 	line := fmt.Sprintf("%d", f)

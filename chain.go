@@ -17,11 +17,11 @@ type Tag struct {
 	Value interface{}
 }
 
-func newLink(err error, prefix string) *Link {
+func newLink(err error, prefix string, skipFrames int) *Link {
 	return &Link{
 		Err:    err,
 		Prefix: prefix,
-		Source: st(),
+		Source: st(skipFrames),
 	}
 
 }
@@ -109,5 +109,5 @@ func (c Chain) AddTypes(typ ...string) Chain {
 
 // Wrap adds another contextual prefix to the error chain
 func (c Chain) Wrap(prefix string) Chain {
-	return wrap(c, prefix)
+	return wrap(c, prefix, 0)
 }
