@@ -6,15 +6,20 @@ import (
 	"github.com/go-playground/errors"
 )
 
+const (
+	permanent = "Permanent"
+	transient = "Transient"
+)
+
 // NETErrors helps classify io related errors
 func NETErrors(c errors.Chain, err error) (cont bool) {
 	switch e := err.(type) {
 	case *net.AddrError:
-		tp := "Permanent"
+		tp := permanent
 		if e.Temporary() {
-			tp = "Transient"
+			tp = transient
 		}
-		c.AddTypes(tp, "net").AddTags(
+		_ = c.AddTypes(tp, "net").AddTags(
 			errors.T("addr", e.Addr),
 			errors.T("is_timeout", e.Timeout()),
 			errors.T("is_temporary", e.Temporary()),
@@ -22,11 +27,11 @@ func NETErrors(c errors.Chain, err error) (cont bool) {
 		return false
 
 	case *net.DNSError:
-		tp := "Permanent"
+		tp := permanent
 		if e.Temporary() {
-			tp = "Transient"
+			tp = transient
 		}
-		c.AddTypes(tp, "net").AddTags(
+		_ = c.AddTypes(tp, "net").AddTags(
 			errors.T("name", e.Name),
 			errors.T("server", e.Server),
 			errors.T("is_timeout", e.Timeout()),
@@ -35,18 +40,18 @@ func NETErrors(c errors.Chain, err error) (cont bool) {
 		return false
 
 	case *net.ParseError:
-		c.AddTypes("Permanent", "net").AddTags(
+		_ = c.AddTypes(permanent, "net").AddTags(
 			errors.T("type", e.Type),
 			errors.T("text", e.Text),
 		)
 		return false
 
 	case *net.OpError:
-		tp := "Permanent"
+		tp := permanent
 		if e.Temporary() {
-			tp = "Transient"
+			tp = transient
 		}
-		c.AddTypes(tp, "net").AddTags(
+		_ = c.AddTypes(tp, "net").AddTags(
 			errors.T("op", e.Op),
 			errors.T("net", e.Net),
 			errors.T("addr", e.Addr),
@@ -56,11 +61,11 @@ func NETErrors(c errors.Chain, err error) (cont bool) {
 		)
 		return false
 	case net.UnknownNetworkError:
-		tp := "Permanent"
+		tp := permanent
 		if e.Temporary() {
-			tp = "Transient"
+			tp = transient
 		}
-		c.AddTypes(tp, "net").AddTags(
+		_ = c.AddTypes(tp, "net").AddTags(
 			errors.T("is_timeout", e.Timeout()),
 			errors.T("is_temporary", e.Temporary()),
 		)
@@ -68,7 +73,7 @@ func NETErrors(c errors.Chain, err error) (cont bool) {
 
 	switch err {
 	case net.ErrWriteToConnected:
-		c.AddTypes("Transient", "net")
+		_ = c.AddTypes(transient, "net")
 		return false
 	}
 	return true

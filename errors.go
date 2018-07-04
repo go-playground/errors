@@ -2,6 +2,7 @@ package errors
 
 import (
 	"errors"
+	"fmt"
 )
 
 var (
@@ -20,10 +21,23 @@ func New(s string) Chain {
 	return wrap(errors.New(s), "", 0)
 }
 
+// Newf creates an error with the provided text and automatically wraps it with line information.
+// it also accepts a varadic for optional message formatting.
+func Newf(format string, a ...interface{}) Chain {
+	return wrap(fmt.Errorf(format, a...), "", 0)
+}
+
 // Wrap encapsulates the error, stores a contextual prefix and automatically obtains
 // a stack trace.
 func Wrap(err error, prefix string) Chain {
 	return wrap(err, prefix, 0)
+}
+
+// Wrapf encapsulates the error, stores a contextual prefix and automatically obtains
+// a stack trace.
+// it also accepts a varadic for prefix formatting.
+func Wrapf(err error, prefix string, a ...interface{}) Chain {
+	return wrap(err, fmt.Sprintf(prefix, a...), 0)
 }
 
 // WrapSkipFrames is a special version of Wrap that skips extra n frames when determining error location.
