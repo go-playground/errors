@@ -10,7 +10,7 @@ func T(key string, value interface{}) Tag {
 	return Tag{Key: key, Value: value}
 }
 
-// Tag contains a single key value conbination
+// Tag contains a single key value combination
 // to be attached to your error
 type Tag struct {
 	Key   string
@@ -21,7 +21,7 @@ func newLink(err error, prefix string, skipFrames int) *Link {
 	return &Link{
 		Err:    err,
 		Prefix: prefix,
-		Source: st(skipFrames),
+		Source: StackLevel(skipFrames),
 	}
 
 }
@@ -57,12 +57,12 @@ type Link struct {
 	Tags []Tag
 
 	// Source contains the name, file and lines obtained from the stack trace
-	Source string
+	Source Frame
 }
 
 // formatError prints a single Links error
 func (l *Link) formatError() string {
-	line := fmt.Sprintf("source=%s ", l.Source)
+	line := fmt.Sprintf("source=%s: %s:%d ", l.Source.Function(), l.Source.File(), l.Source.Line())
 
 	if l.Prefix != "" {
 		line += l.Prefix
@@ -114,5 +114,5 @@ func (c Chain) AddTypes(typ ...string) Chain {
 
 // Wrap adds another contextual prefix to the error chain
 func (c Chain) Wrap(prefix string) Chain {
-	return wrap(c, prefix, 0)
+	return wrap(c, prefix, 3)
 }
