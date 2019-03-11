@@ -9,6 +9,10 @@ const (
 	transient = "Transient"
 )
 
+func init() {
+	errors.RegisterHelper(AWSErrors)
+}
+
 // AWSErrors helps classify io related errors
 func AWSErrors(c errors.Chain, err error) (cont bool) {
 	switch e := err.(type) {

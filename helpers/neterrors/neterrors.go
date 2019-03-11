@@ -11,6 +11,10 @@ const (
 	transient = "Transient"
 )
 
+func init() {
+	errors.RegisterHelper(NETErrors)
+}
+
 // NETErrors helps classify io related errors
 func NETErrors(c errors.Chain, err error) (cont bool) {
 	switch e := err.(type) {

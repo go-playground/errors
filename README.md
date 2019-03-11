@@ -1,6 +1,6 @@
 Package errors
 ============
-![Project status](https://img.shields.io/badge/version-3.3.0-green.svg)
+![Project status](https://img.shields.io/badge/version-4.0.0-green.svg)
 [![Build Status](https://semaphoreci.com/api/v1/joeybloggs/errors/branches/master/badge.svg)](https://semaphoreci.com/joeybloggs/errors)
 [![Go Report Card](https://goreportcard.com/badge/github.com/go-playground/errors)](https://goreportcard.com/report/github.com/go-playground/errors)
 [![GoDoc](https://godoc.org/github.com/go-playground/errors?status.svg)](https://godoc.org/github.com/go-playground/errors)
@@ -13,12 +13,18 @@ stack traces, tags(additional information) and even a Type classification system
 Common Questions
 
 Why another package?
-Because IMO most of the existing packages either don't take the error handling far enough, too far or down right unfriendly to use/consume. 
+There are two main reasons.
+- I think that the programs generating the original error(s) should be responsible for handling them, even though this package allows access to the original error, and that the callers are mainly interested in:
+  - If the error is Transient or Permanent for retries.
+  - Additional details for logging.
+
+- IMO most of the existing packages either don't take the error handling far enough, too far or down right unfriendly to use/consume. 
 
 Features
 --------
 - [x] works with go-playground/log, the Tags will be added as Field Key Values and Types will be concatenated as well when using `WithError`
 - [x] helpers to extract and classify error types using `RegisterHelper(...)`, many already existing such as ioerrors, neterrors, awserrors...
+- [x] built in helpers only need to be imported, eg. `_ github.com/go-playground/errors/helpers/neterrors` allowing libraries to register their own helpers not needing the caller to do or guess what needs to be imported.
 
 Installation
 ------------
@@ -44,15 +50,24 @@ func main() {
 	fmt.Println(err)
 	if errors.HasType(err, "Permanent") {
 		// os.Exit(1)
+		fmt.Println("it is a permanent error")
 	}
 
 	// root error
 	cause := errors.Cause(err)
-	fmt.Println(cause)
+	fmt.Println("CAUSE:", cause)
 
 	// can even still inspect the internal error
 	fmt.Println(errors.Cause(err) == io.EOF) // will extract the cause for you
 	fmt.Println(errors.Cause(cause) == io.EOF)
+
+	// and still in a switch
+	switch errors.Cause(err) {
+	case io.EOF:
+		fmt.Println("EOF error")
+	default:
+		fmt.Println("unknown error")
+	}
 }
 
 func level1(value string) error {
@@ -63,7 +78,7 @@ func level1(value string) error {
 }
 
 func level2(value string) error {
-	err := fmt.Errorf("this is an %s", "error")
+	err := io.EOF
 	return errors.Wrap(err, "failed to do something").AddTypes("Permanent").AddTags(errors.T("value", value))
 }
 ```
@@ -76,8 +91,6 @@ package main
 import (
 	"fmt"
 
-	"strings"
-
 	"github.com/go-playground/errors"
 )
 
@@ -85,26 +98,16 @@ func main() {
 	// maybe you just want to grab a stack trace and process on your own like go-playground/log
 	// uses it to produce a stack trace log message
 	frame := errors.Stack()
-	name := fmt.Sprintf("%n", frame)
-	file := fmt.Sprintf("%+s", frame)
-	line := fmt.Sprintf("%d", frame)
-	parts := strings.Split(file, "\n\t")
-	if len(parts) > 1 {
-		file = parts[1]
-	}
+	fmt.Printf("Function: %s File: %s Line: %d\n", frame.Function(), frame.File(), frame.Line())
 
-	fmt.Printf("Name: %s File: %s Line: %s\n", name, file, line)
+	// and still have access to the underlying runtime.Frame
+	fmt.Printf("%+v\n", frame.Frame)
 }
 ```
 
 Package Versioning
 ----------
-I'm jumping on the vendoring bandwagon, you should vendor this package as I will not
-be creating different version with gopkg.in like allot of my other libraries.
-
-Why? because my time is spread pretty thin maintaining all of the libraries I have + LIFE,
-it is so freeing not to worry about it and will help me keep pouring out bigger and better
-things for you the community.
+Using Go modules and proper semantic version releases (as always).
 
 License
 ------

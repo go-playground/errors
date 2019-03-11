@@ -1,14 +1,13 @@
-GOCMD=go
+GOCMD=GO111MODULE=on go
 
 linters-install:
-	@gometalinter --version >/dev/null 2>&1 || { \
+	@golangci-lint --version >/dev/null 2>&1 || { \
 		echo "installing linting tools..."; \
-		$(GOCMD) get github.com/alecthomas/gometalinter; \
-		gometalinter --install; \
+		$(GOCMD) get github.com/golangci/golangci-lint/cmd/golangci-lint; \
 	}
 
 lint: linters-install
-	gometalinter --vendor --disable-all --enable=vet --enable=vetshadow --enable=golint --enable=megacheck --enable=ineffassign --enable=misspell --enable=errcheck --enable=goconst ./...
+	golangci-lint run
 
 test:
 	$(GOCMD) test -cover -race ./...

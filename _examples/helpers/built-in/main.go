@@ -5,11 +5,11 @@ import (
 	"net"
 
 	"github.com/go-playground/errors"
-	"github.com/go-playground/errors/helpers/neterrors"
+	// init function handles registration automatically
+	_ "github.com/go-playground/errors/helpers/neterrors"
 )
 
 func main() {
-	errors.RegisterHelper(neterrors.NETErrors)
 	_, err := net.ResolveIPAddr("tcp", "foo")
 	if err != nil {
 		err = errors.Wrap(err, "failed to perform operation")

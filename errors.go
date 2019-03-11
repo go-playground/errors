@@ -3,6 +3,7 @@ package errors
 import (
 	"errors"
 	"fmt"
+	"reflect"
 )
 
 var (
@@ -13,37 +14,42 @@ var (
 // errors will run all registered helpers until a match is found.
 // NOTE helpers are run in the order they are added.
 func RegisterHelper(helper Helper) {
+	for i := 0; i < len(helpers); i++ {
+		if reflect.ValueOf(helpers[i]).Pointer() == reflect.ValueOf(helper).Pointer() {
+			return
+		}
+	}
 	helpers = append(helpers, helper)
 }
 
 // New creates an error with the provided text and automatically wraps it with line information.
 func New(s string) Chain {
-	return wrap(errors.New(s), "", 0)
+	return wrap(errors.New(s), "", 3)
 }
 
 // Newf creates an error with the provided text and automatically wraps it with line information.
 // it also accepts a varadic for optional message formatting.
 func Newf(format string, a ...interface{}) Chain {
-	return wrap(fmt.Errorf(format, a...), "", 0)
+	return wrap(fmt.Errorf(format, a...), "", 3)
 }
 
 // Wrap encapsulates the error, stores a contextual prefix and automatically obtains
 // a stack trace.
 func Wrap(err error, prefix string) Chain {
-	return wrap(err, prefix, 0)
+	return wrap(err, prefix, 3)
 }
 
 // Wrapf encapsulates the error, stores a contextual prefix and automatically obtains
 // a stack trace.
 // it also accepts a varadic for prefix formatting.
 func Wrapf(err error, prefix string, a ...interface{}) Chain {
-	return wrap(err, fmt.Sprintf(prefix, a...), 0)
+	return wrap(err, fmt.Sprintf(prefix, a...), 3)
 }
 
 // WrapSkipFrames is a special version of Wrap that skips extra n frames when determining error location.
 // Normally only used when wrapping the library
 func WrapSkipFrames(err error, prefix string, n uint) Chain {
-	return wrap(err, prefix, int(n))
+	return wrap(err, prefix, int(n)+3)
 }
 
 func wrap(err error, prefix string, skipFrames int) (c Chain) {

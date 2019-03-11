@@ -59,8 +59,9 @@ func TestWrap(t *testing.T) {
 
 	for i, tt := range tests {
 		link := tt.err.current()
-		if !strings.HasSuffix(link.Source, tt.suf) || !strings.HasPrefix(link.Source, tt.pre) {
-			t.Fatalf("IDX: %d want %s<path>%s got %s", i, tt.pre, tt.suf, link.Source)
+		source := fmt.Sprintf("%s: %s:%d", link.Source.Function(), link.Source.File(), link.Source.Line())
+		if !strings.HasSuffix(source, tt.suf) || !strings.HasPrefix(source, tt.pre) {
+			t.Fatalf("IDX: %d want %s<path>%s got %s", i, tt.pre, tt.suf, source)
 		}
 	}
 }
@@ -158,8 +159,8 @@ func TestCause2(t *testing.T) {
 }
 
 func TestHelpers(t *testing.T) {
-	fn := func(w Chain, err error) (cont bool) {
-		w.AddTypes("Test").AddTags(T("test", "tag")).AddTag("foo", "bar")
+	fn := func(w Chain, _ error) (cont bool) {
+		_ = w.AddTypes("Test").AddTags(T("test", "tag")).AddTag("foo", "bar")
 		return false
 	}
 	RegisterHelper(fn)

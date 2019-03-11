@@ -6,6 +6,10 @@ import (
 	"github.com/go-playground/errors"
 )
 
+func init() {
+	errors.RegisterHelper(IOErrors)
+}
+
 // IOErrors helps classify io related errors
 func IOErrors(c errors.Chain, err error) (cont bool) {
 	switch err {

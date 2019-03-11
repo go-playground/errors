@@ -1,34 +1,32 @@
 package errors
 
 import (
-	"fmt"
-	"strings"
 	"testing"
 )
 
 func TestStack(t *testing.T) {
 	tests := []struct {
 		file string
-		line string
-		name string
+		line int
+		fn   string
 	}{
 		{
 			file: "stack_test.go",
-			line: "23",
-			name: "TestStack",
+			line: 21,
+			fn:   "TestStack",
 		},
 	}
 
 	for i, tt := range tests {
 		frame := Stack()
-		if v := fmt.Sprintf("%n", frame); tt.name != v {
-			t.Fatalf("IDX: %d want %s got %s", i, tt.name, v)
+		if tt.fn != frame.Function() {
+			t.Fatalf("IDX: %d want %s got %s", i, tt.fn, frame.Function())
 		}
-		if v := fmt.Sprintf("%+s", frame); !strings.HasSuffix(v, tt.file) {
-			t.Fatalf("IDX: %d want %s got %s", i, tt.file, v)
+		if tt.file != frame.File() {
+			t.Fatalf("IDX: %d want %s got %s", i, tt.file, frame.File())
 		}
-		if v := fmt.Sprintf("%d", frame); tt.line != v {
-			t.Fatalf("IDX: %d want %s got %s", i, tt.line, v)
+		if tt.line != frame.Line() {
+			t.Fatalf("IDX: %d want %d got %d", i, tt.line, frame.Line())
 		}
 	}
 }
