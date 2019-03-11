@@ -2,6 +2,7 @@ package errors
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -31,13 +32,16 @@ type Chain []*Link
 
 // Error returns the formatted error string
 func (c Chain) Error() string {
-	lines := make([]string, 0, len(c))
+	b := make([]byte, 0, len(c)*128)
+
 	//source=<source> <prefix>: <error> tag=value tag2=value2 types=type1,type2
 	for i := len(c) - 1; i >= 0; i-- {
-		line := c[i].formatError()
-		lines = append(lines, line)
+		b = c[i].formatError(b)
+		if i > 0 {
+			b = append(b, '\n')
+		}
 	}
-	return strings.Join(lines, "\n")
+	return string(b)
 }
 
 // Link contains a single error entry, unless it's the top level error, in
@@ -61,28 +65,37 @@ type Link struct {
 }
 
 // formatError prints a single Links error
-func (l *Link) formatError() string {
-	line := fmt.Sprintf("source=%s: %s:%d ", l.Source.Function(), l.Source.File(), l.Source.Line())
+func (l *Link) formatError(b []byte) []byte {
+	b = append(b, "source="...)
+	b = append(b, l.Source.Function()...)
+	b = append(b, ": "...)
+	b = append(b, l.Source.File()...)
+	b = append(b, ':')
+	strconv.AppendInt(b, int64(l.Source.Line()), 10)
 
 	if l.Prefix != "" {
-		line += l.Prefix
+		b = append(b, l.Prefix...)
 	}
 
 	if _, ok := l.Err.(Chain); !ok {
 		if l.Prefix != "" {
-			line += ": "
+			b = append(b, ": "...)
 		}
-		line += l.Err.Error()
+		b = append(b, l.Err.Error()...)
 	}
 
 	for _, tag := range l.Tags {
-		line += fmt.Sprintf(" %s=%v", tag.Key, tag.Value)
+		b = append(b, ' ')
+		b = append(b, tag.Key...)
+		b = append(b, '=')
+		b = append(b, fmt.Sprintf("%v", tag.Value)...)
 	}
 
 	if len(l.Types) > 0 {
-		line += " types=" + strings.Join(l.Types, ",")
+		b = append(b, " types="...)
+		b = append(b, strings.Join(l.Types, ",")...)
 	}
-	return line
+	return b
 }
 
 // helper method to get the current *Link from the top level
