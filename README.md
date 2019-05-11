@@ -1,7 +1,7 @@
 Package errors
 ============
 ![Project status](https://img.shields.io/badge/version-5.0.0-green.svg)
-[![Build Status](https://semaphoreci.com/api/v1/joeybloggs/errors/branches/master/badge.svg)](https://semaphoreci.com/joeybloggs/errors)
+[![Build Status](https://travis-ci.org/go-playground/errors.svg?branch=master)](https://travis-ci.org/go-playground/errors)
 [![Go Report Card](https://goreportcard.com/badge/github.com/go-playground/errors)](https://goreportcard.com/report/github.com/go-playground/errors)
 [![GoDoc](https://godoc.org/github.com/go-playground/errors?status.svg)](https://godoc.org/github.com/go-playground/errors)
 ![License](https://img.shields.io/dub/l/vibe-d.svg)
