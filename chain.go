@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+
+	runtimeext "github.com/go-playground/pkg/runtime"
 )
 
 // T is a shortcut to make a Tag
@@ -22,7 +24,7 @@ func newLink(err error, prefix string, skipFrames int) *Link {
 	return &Link{
 		Err:    err,
 		Prefix: prefix,
-		Source: StackLevel(skipFrames),
+		Source: runtimeext.StackLevel(skipFrames),
 	}
 
 }
@@ -61,7 +63,7 @@ type Link struct {
 	Tags []Tag
 
 	// Source contains the name, file and lines obtained from the stack trace
-	Source Frame
+	Source runtimeext.Frame
 }
 
 // formatError prints a single Links error
