@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	runtimeext "github.com/go-playground/pkg/runtime"
+	runtimeext "github.com/go-playground/pkg/v3/runtime"
 )
 
 func main() {

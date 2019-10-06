@@ -1,8 +1,5 @@
 github.com/aws/aws-sdk-go v1.19.28 h1:u0KMC+Qv0YVyz8YR6mREEtslSPkdUMzXgDJFD5196O8=
 github.com/aws/aws-sdk-go v1.19.28/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
 github.com/go-playground/form v3.1.4+incompatible/go.mod h1:lhcKXfTuhRtIZCIKUeJ0b5F207aeQCPbZU09ScKjwWg=
-github.com/go-playground/pkg v0.0.0-20190511145249-fa4bcb050f1d h1:dLyXECWWFoQAp49e+ayPJyTcVAVOSAEmZ/QALeOuIfg=
-github.com/go-playground/pkg v0.0.0-20190511145249-fa4bcb050f1d/go.mod h1:Wg1j+HqWLhhVIfYdaoOuBzdutBEVcqwvBxgFZRWbybk=
-github.com/go-playground/pkg v1.0.1 h1:EsBCgjDTrlaLCflFChT2Q/M4unQQS6DnBDvHTA+fVAI=
 github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af/go.mod h1:Nht3zPeWKUH0NzdCt2Blrr5ys8VGpn0CEB0cQHVjt7k=
 gopkg.in/go-playground/assert.v1 v1.2.1/go.mod h1:9RXL0bg/zibRAgZUYszZSwO/z8Y/a8bDuhia5mkpMnE=

@@ -42,7 +42,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/go-playground/errors"
+	"github.com/go-playground/errors/v5"
 )
 
 func main() {
@@ -91,7 +91,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/go-playground/errors"
+	"github.com/go-playground/errors/v5"
 )
 
 func main() {
