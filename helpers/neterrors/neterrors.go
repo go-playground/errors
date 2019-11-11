@@ -3,7 +3,7 @@ package neterrors
 import (
 	"net"
 
-	"github.com/go-playground/errors"
+	"github.com/go-playground/errors/v5"
 )
 
 const (

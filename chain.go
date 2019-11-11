@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	runtimeext "github.com/go-playground/pkg/runtime"
+	runtimeext "github.com/go-playground/pkg/v4/runtime"
 )
 
 // T is a shortcut to make a Tag
