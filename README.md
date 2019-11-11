@@ -1,6 +1,6 @@
 Package errors
 ============
-![Project status](https://img.shields.io/badge/version-5.0.0-green.svg)
+![Project status](https://img.shields.io/badge/version-5.0.1-green.svg)
 [![Build Status](https://travis-ci.org/go-playground/errors.svg?branch=master)](https://travis-ci.org/go-playground/errors)
 [![Go Report Card](https://goreportcard.com/badge/github.com/go-playground/errors)](https://goreportcard.com/report/github.com/go-playground/errors)
 [![GoDoc](https://godoc.org/github.com/go-playground/errors?status.svg)](https://godoc.org/github.com/go-playground/errors)
@@ -24,14 +24,14 @@ Features
 --------
 - [x] works with go-playground/log, the Tags will be added as Field Key Values and Types will be concatenated as well when using `WithError`
 - [x] helpers to extract and classify error types using `RegisterHelper(...)`, many already existing such as ioerrors, neterrors, awserrors...
-- [x] built in helpers only need to be imported, eg. `_ github.com/go-playground/errors/helpers/neterrors` allowing libraries to register their own helpers not needing the caller to do or guess what needs to be imported.
+- [x] built in helpers only need to be imported, eg. `_ github.com/go-playground/errors/v5/helpers/neterrors` allowing libraries to register their own helpers not needing the caller to do or guess what needs to be imported.
 
 Installation
 ------------
 
 Use go get.
 
-	go get -u github.com/go-playground/errors
+	go get -u github.com/go-playground/errors/v5
     
 Usage
 -----
@@ -42,7 +42,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/go-playground/errors"
+	"github.com/go-playground/errors/v5"
 )
 
 func main() {
@@ -91,7 +91,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/go-playground/errors"
+	"github.com/go-playground/errors/v5"
 )
 
 func main() {

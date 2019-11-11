@@ -2,7 +2,7 @@ package awserrors
 
 import (
 	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/go-playground/errors"
+	"github.com/go-playground/errors/v5"
 )
 
 const (

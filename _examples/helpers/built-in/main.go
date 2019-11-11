@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/go-playground/errors"
+	"github.com/go-playground/errors/v5"
 	// init function handles registration automatically
-	_ "github.com/go-playground/errors/helpers/neterrors"
+	_ "github.com/go-playground/errors/v5/helpers/neterrors"
 )
 
 func main() {
