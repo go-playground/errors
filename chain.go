@@ -4,8 +4,13 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"unsafe"
 
 	runtimeext "github.com/go-playground/pkg/v4/runtime"
+)
+
+var (
+	_ unwrap = (*Chain)(nil)
 )
 
 // T is a shortcut to make a Tag
@@ -36,14 +41,14 @@ type Chain []*Link
 func (c Chain) Error() string {
 	b := make([]byte, 0, len(c)*128)
 
-	//source=<source> <prefix>: <error> tag=value tag2=value2 types=type1,type2
+	//function:file:line <prefix>: <error> tag=value tag2=value2 types=type1,type2
 	for i := len(c) - 1; i >= 0; i-- {
 		b = c[i].formatError(b)
 		if i > 0 {
 			b = append(b, '\n')
 		}
 	}
-	return string(b)
+	return *(*string)(unsafe.Pointer(&b))
 }
 
 // Link contains a single error entry, unless it's the top level error, in
@@ -68,12 +73,12 @@ type Link struct {
 
 // formatError prints a single Links error
 func (l *Link) formatError(b []byte) []byte {
-	b = append(b, "source="...)
 	b = append(b, l.Source.Function()...)
-	b = append(b, ": "...)
+	b = append(b, ':')
 	b = append(b, l.Source.File()...)
 	b = append(b, ':')
-	strconv.AppendInt(b, int64(l.Source.Line()), 10)
+	b = strconv.AppendInt(b, int64(l.Source.Line()), 10)
+	b = append(b, ' ')
 
 	if l.Prefix != "" {
 		b = append(b, l.Prefix...)
@@ -130,4 +135,17 @@ func (c Chain) AddTypes(typ ...string) Chain {
 // Wrap adds another contextual prefix to the error chain
 func (c Chain) Wrap(prefix string) Chain {
 	return wrap(c, prefix, 3)
+}
+
+// Unwrap returns the result of calling the Unwrap method on err, if err's
+// type contains an Unwrap method returning error.
+// Otherwise, Unwrap returns nil.
+func (c Chain) Unwrap() error {
+	if len(c) == 1 {
+		if e, ok := c[0].Err.(unwrap); ok {
+			return e.Unwrap()
+		}
+		return c[0].Err
+	}
+	return c[:len(c)-1]
 }

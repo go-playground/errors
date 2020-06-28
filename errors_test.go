@@ -1,6 +1,7 @@
 package errors
 
 import (
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strings"
@@ -28,32 +29,32 @@ func TestWrap(t *testing.T) {
 		{
 			err: err0,
 			pre: "TestWrap: ",
-			suf: "errors_test.go:16",
+			suf: "errors_test.go:17",
 		},
 		{
 			err: err1,
 			pre: "TestWrap: ",
-			suf: "errors_test.go:17",
+			suf: "errors_test.go:18",
 		},
 		{
 			err: err2,
 			pre: "TestWrap: ",
-			suf: "errors_test.go:18",
+			suf: "errors_test.go:19",
 		},
 		{
 			err: err3,
 			pre: "TestWrap: ",
-			suf: "errors_test.go:19",
+			suf: "errors_test.go:20",
 		},
 		{
 			err: err4,
 			pre: "TestWrap: ",
-			suf: "errors_test.go:20",
+			suf: "errors_test.go:21",
 		},
 		{
 			err: err5,
 			pre: "TestWrap: ",
-			suf: "errors_test.go:21",
+			suf: "errors_test.go:22",
 		},
 	}
 
@@ -63,6 +64,31 @@ func TestWrap(t *testing.T) {
 		if !strings.HasSuffix(source, tt.suf) || !strings.HasPrefix(source, tt.pre) {
 			t.Fatalf("IDX: %d want %s<path>%s got %s", i, tt.pre, tt.suf, source)
 		}
+	}
+}
+
+func TestUnwrap(t *testing.T) {
+	defaultErr := stderrors.New("this is an error")
+	err := fmt.Errorf("std wrapped: %w", defaultErr)
+	err = Wrap(defaultErr, "prefix")
+	err = Wrap(err, "prefix2")
+	err = fmt.Errorf("wrapping Chain: %w", err)
+	err = fmt.Errorf("wrapping err again: %w", err)
+	err = Wrap(err, "wrapping std with chain")
+
+	for {
+		switch t := err.(type) {
+		case unwrap:
+			if unwrappedErr := t.Unwrap(); unwrappedErr != nil {
+				err = unwrappedErr
+				continue
+			}
+		}
+		break
+	}
+	expect := defaultErr.Error()
+	if err.Error() != expect {
+		t.Fatalf("want %s got %s", expect, err.Error())
 	}
 }
 
@@ -138,7 +164,7 @@ func TestCause(t *testing.T) {
 	cause := Cause(err)
 	expect := "this is an error"
 	if cause.Error() != expect {
-		t.Fatalf("want %s got %s", expect, err.Error())
+		t.Fatalf("want %s got %s", expect, cause.Error())
 	}
 }
 
@@ -155,6 +181,21 @@ func TestCause2(t *testing.T) {
 	}
 	if Cause(io.EOF) != io.EOF {
 		t.Fatalf("want %t got %t", true, false)
+	}
+}
+
+func TestCauseStdErrorsMixed(t *testing.T) {
+	defaultErr := stderrors.New("this is an error")
+	err := fmt.Errorf("std wrapped: %w", defaultErr)
+	err = Wrap(defaultErr, "prefix")
+	err = Wrap(err, "prefix2")
+	err = fmt.Errorf("wrapping Chain: %w", err)
+	err = fmt.Errorf("wrapping err again: %w", err)
+	err = Wrap(err, "wrapping std with chain")
+	cause := Cause(err)
+	expect := defaultErr.Error()
+	if cause.Error() != expect {
+		t.Fatalf("want %s got %s", expect, cause.Error())
 	}
 }
 

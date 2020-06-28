@@ -6,6 +6,8 @@ import (
 	"reflect"
 )
 
+type unwrap interface{ Unwrap() error }
+
 var (
 	helpers []Helper
 )
@@ -69,13 +71,19 @@ func wrap(err error, prefix string, skipFrames int) (c Chain) {
 
 // Cause extracts and returns the root wrapped error (the naked error with no additional information
 func Cause(err error) error {
-	switch t := err.(type) {
-	case Chain:
-		return t[0].Err
-	default:
+	for {
+		switch t := err.(type) {
+		case Chain: // fast path
+			err = t[0].Err
+			continue
+		case unwrap:
+			if unwrappedErr := t.Unwrap(); unwrappedErr != nil {
+				err = unwrappedErr
+				continue
+			}
+		}
 		return err
 	}
-	// TODO: lookup via Cause interface recursively on error
 }
 
 // HasType is a helper function that will recurse up from the root error and check that the provided type
