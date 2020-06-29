@@ -2,6 +2,7 @@ package errors
 
 import (
 	"fmt"
+	"reflect"
 	"strconv"
 	"strings"
 	"unsafe"
@@ -11,6 +12,7 @@ import (
 
 var (
 	_ unwrap = (*Chain)(nil)
+	_ is     = (*Chain)(nil)
 )
 
 // T is a shortcut to make a Tag
@@ -140,6 +142,8 @@ func (c Chain) Wrap(prefix string) Chain {
 // Unwrap returns the result of calling the Unwrap method on err, if err's
 // type contains an Unwrap method returning error.
 // Otherwise, Unwrap returns nil.
+//
+// If attempting to retrieve the cause see Cause function instead.
 func (c Chain) Unwrap() error {
 	if len(c) == 1 {
 		if e, ok := c[0].Err.(unwrap); ok {
@@ -148,4 +152,14 @@ func (c Chain) Unwrap() error {
 		return c[0].Err
 	}
 	return c[:len(c)-1]
+}
+
+// Is reports whether any error in err's chain matches target.
+//
+// This is here to help make it a drop in replacement to the std error handler, I highly recommend using
+// Cause + switch statement instead.
+func (c Chain) Is(target error) bool {
+	currentErr := c[len(c)-1].Err
+	isComparable := reflect.TypeOf(currentErr).Comparable()
+	return isComparable && currentErr == target
 }

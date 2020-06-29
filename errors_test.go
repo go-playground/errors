@@ -218,3 +218,16 @@ func TestLookupTag(t *testing.T) {
 		t.Fatalf("want %s got %v", "Value", LookupTag(err, "Key"))
 	}
 }
+
+func TestIs(t *testing.T) {
+	defaultErr := io.EOF
+	err := fmt.Errorf("std wrapped: %w", defaultErr)
+	err = Wrap(defaultErr, "prefix")
+	err = Wrap(err, "prefix2")
+	err = fmt.Errorf("wrapping Chain: %w", err)
+	err = fmt.Errorf("wrapping err again: %w", err)
+	err = Wrap(err, "wrapping std with chain")
+	if !Is(err, io.EOF) {
+		t.Fatal("want true got false")
+	}
+}

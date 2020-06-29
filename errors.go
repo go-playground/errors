@@ -2,11 +2,13 @@ package errors
 
 import (
 	"errors"
+	stderrors "errors"
 	"fmt"
 	"reflect"
 )
 
 type unwrap interface{ Unwrap() error }
+type is interface{ Is(error) bool }
 
 var (
 	helpers []Helper
@@ -115,4 +117,42 @@ func LookupTag(err error, key string) interface{} {
 		}
 	}
 	return nil
+}
+
+// Is is to allow this library to be a drop-in replacement to the std library.
+// I highly recommend using a switch T:= err.(type) instead.
+//
+// Is reports whether any error in err's chain matches target.
+//
+// The chain consists of err itself followed by the sequence of errors obtained by
+// repeatedly calling Unwrap.
+//
+// An error is considered to match a target if it is equal to that target or if
+// it implements a method Is(error) bool such that Is(target) returns true.
+//
+// An error type might provide an Is method so it can be treated as equivalent
+// to an existing error. For example, if MyError defines
+//
+//	func (m MyError) Is(target error) bool { return target == os.ErrExist }
+//
+// then Is(MyError{}, os.ErrExist) returns true. See syscall.Errno.Is for
+// an example in the standard library.
+func Is(err, target error) bool {
+	return stderrors.Is(err, target)
+	//if target == nil {
+	//	return err == target
+	//}
+	//
+	//isComparable := reflect.TypeOf(target).Comparable()
+	//for {
+	//	if isComparable && err == target {
+	//		return true
+	//	}
+	//	if x, ok := err.(interface{ Is(error) bool }); ok && x.Is(target) {
+	//		return true
+	//	}
+	//	if err = stderrors.Unwrap(err); err == nil {
+	//		return false
+	//	}
+	//}
 }
