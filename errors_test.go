@@ -221,9 +221,36 @@ func TestHelpers(t *testing.T) {
 }
 
 func TestLookupTag(t *testing.T) {
-	err := Wrap(io.EOF, "prefix").AddTag("Key", "Value")
-	if LookupTag(err, "Key").(string) != "Value" {
-		t.Fatalf("want %s got %v", "Value", LookupTag(err, "Key"))
+	key := "Key"
+	value := "Value"
+
+	tests := []struct {
+		name  string
+		err   error
+		key   string
+		value interface{}
+	}{
+		{
+			name: "basic wrap",
+			err:  Wrap(io.EOF, "prefix").AddTag(key, value),
+		},
+		{
+			name: "double wrapped",
+			err:  Wrap(Wrap(io.EOF, "prefix").AddTag(key, value), "wrapped"),
+		},
+		{
+			name: "std lib wrapped",
+			err:  fmt.Errorf("wrapped %w", Wrap(io.EOF, "prefix").AddTag(key, value)),
+		},
+	}
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			if LookupTag(tc.err, key) != value {
+				t.Fatalf("want '%s' got '%v'", value, LookupTag(tc.err, key))
+			}
+		})
 	}
 }
 

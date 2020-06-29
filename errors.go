@@ -114,17 +114,24 @@ func HasType(err error, typ string) bool {
 
 // LookupTag recursively searches for the provided tag and returns it's value or nil
 func LookupTag(err error, key string) interface{} {
-	switch t := err.(type) {
-	case Chain:
-		for i := len(t) - 1; i >= 0; i-- {
-			for j := 0; j < len(t[i].Tags); j++ {
-				if t[i].Tags[j].Key == key {
-					return t[i].Tags[j].Value
+	for {
+		switch t := err.(type) {
+		case Chain:
+			for i := len(t) - 1; i >= 0; i-- {
+				for j := 0; j < len(t[i].Tags); j++ {
+					if t[i].Tags[j].Key == key {
+						return t[i].Tags[j].Value
+					}
 				}
 			}
+			err = t[0].Err
+			continue
+		case unwrap:
+			err = t.Unwrap()
+			continue
 		}
+		return nil
 	}
-	return nil
 }
 
 // Is is to allow this library to be a drop-in replacement to the std library.
