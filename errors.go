@@ -105,9 +105,7 @@ func HasType(err error, typ string) bool {
 			err = t[0].Err
 			continue
 		case unwrap:
-			if err = t.Unwrap(); err == nil {
-				return false
-			}
+			err = t.Unwrap()
 			continue
 		}
 		return false
