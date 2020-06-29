@@ -7,7 +7,7 @@ import (
 	"strings"
 	"unsafe"
 
-	runtimeext "github.com/go-playground/pkg/v4/runtime"
+	runtimeext "github.com/go-playground/pkg/v5/runtime"
 )
 
 var (
