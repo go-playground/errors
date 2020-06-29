@@ -9,6 +9,7 @@ import (
 
 type unwrap interface{ Unwrap() error }
 type is interface{ Is(error) bool }
+type as interface{ As(interface{}) bool }
 
 var (
 	helpers []Helper
@@ -120,7 +121,6 @@ func LookupTag(err error, key string) interface{} {
 }
 
 // Is is to allow this library to be a drop-in replacement to the std library.
-// I highly recommend using a switch T:= err.(type) instead.
 //
 // Is reports whether any error in err's chain matches target.
 //
@@ -139,20 +139,26 @@ func LookupTag(err error, key string) interface{} {
 // an example in the standard library.
 func Is(err, target error) bool {
 	return stderrors.Is(err, target)
-	//if target == nil {
-	//	return err == target
-	//}
-	//
-	//isComparable := reflect.TypeOf(target).Comparable()
-	//for {
-	//	if isComparable && err == target {
-	//		return true
-	//	}
-	//	if x, ok := err.(interface{ Is(error) bool }); ok && x.Is(target) {
-	//		return true
-	//	}
-	//	if err = stderrors.Unwrap(err); err == nil {
-	//		return false
-	//	}
-	//}
+}
+
+// As is to allow this library to be a drop-in replacement to the std library.
+//
+// As finds the first error in err's chain that matches target, and if so, sets
+// target to that error value and returns true. Otherwise, it returns false.
+//
+// The chain consists of err itself followed by the sequence of errors obtained by
+// repeatedly calling Unwrap.
+//
+// An error matches target if the error's concrete value is assignable to the value
+// pointed to by target, or if the error has a method As(interface{}) bool such that
+// As(target) returns true. In the latter case, the As method is responsible for
+// setting target.
+//
+// An error type might provide an As method so it can be treated as if it were a
+// a different error type.
+//
+// As panics if target is not a non-nil pointer to either a type that implements
+// error, or to any interface type.
+func As(err error, target interface{}) bool {
+	return stderrors.As(err, target)
 }

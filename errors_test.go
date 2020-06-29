@@ -231,3 +231,26 @@ func TestIs(t *testing.T) {
 		t.Fatal("want true got false")
 	}
 }
+
+type myErrorType struct {
+	msg string
+}
+
+func (e *myErrorType) Error() string {
+	return e.msg
+}
+
+func TestAs(t *testing.T) {
+	defaultErr := &myErrorType{msg: "my error type"}
+	err := fmt.Errorf("std wrapped: %w", defaultErr)
+	err = Wrap(defaultErr, "prefix")
+	err = Wrap(err, "prefix2")
+	err = fmt.Errorf("wrapping Chain: %w", err)
+	err = fmt.Errorf("wrapping err again: %w", err)
+	err = Wrap(err, "wrapping std with chain")
+
+	var myErr *myErrorType
+	if !As(err, &myErr) {
+		t.Fatal("want true got false")
+	}
+}

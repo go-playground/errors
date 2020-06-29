@@ -1,8 +1,8 @@
 package errors
 
 import (
+	stderrors "errors"
 	"fmt"
-	"reflect"
 	"strconv"
 	"strings"
 	"unsafe"
@@ -13,6 +13,7 @@ import (
 var (
 	_ unwrap = (*Chain)(nil)
 	_ is     = (*Chain)(nil)
+	_ as     = (*Chain)(nil)
 )
 
 // T is a shortcut to make a Tag
@@ -159,7 +160,25 @@ func (c Chain) Unwrap() error {
 // This is here to help make it a drop in replacement to the std error handler, I highly recommend using
 // Cause + switch statement instead.
 func (c Chain) Is(target error) bool {
-	currentErr := c[len(c)-1].Err
-	isComparable := reflect.TypeOf(currentErr).Comparable()
-	return isComparable && currentErr == target
+	return stderrors.Is(c[len(c)-1].Err, target)
+}
+
+// As finds the first error in err's chain that matches target, and if so, sets
+// target to that error value and returns true. Otherwise, it returns false.
+//
+// The chain consists of err itself followed by the sequence of errors obtained by
+// repeatedly calling Unwrap.
+//
+// An error matches target if the error's concrete value is assignable to the value
+// pointed to by target, or if the error has a method As(interface{}) bool such that
+// As(target) returns true. In the latter case, the As method is responsible for
+// setting target.
+//
+// An error type might provide an As method so it can be treated as if it were a
+// a different error type.
+//
+// As panics if target is not a non-nil pointer to either a type that implements
+// error, or to any interface type.
+func (c Chain) As(target interface{}) bool {
+	return stderrors.As(c[len(c)-1].Err, target)
 }
