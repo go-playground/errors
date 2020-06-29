@@ -138,22 +138,30 @@ func TestTypes(t *testing.T) {
 
 func TestHasType(t *testing.T) {
 	tests := []struct {
-		types []string
-		typ   string
+		name string
+		typ  string
+		err  error
 	}{
 		{
-			types: []string{"Permanent", "internalError"},
-			typ:   "Permanent",
+			name: "basic types",
+			typ:  "Permanent",
+			err:  Wrap(fmt.Errorf("this is an %s", "error"), "prefix").AddTypes("Permanent", "internalError"),
+		},
+		{
+			name: "std wrapped",
+			typ:  "MyType",
+			err:  fmt.Errorf("std wrapped %w", New("base error").AddTypes("MyType")),
 		},
 	}
 
-	defaultErr := fmt.Errorf("this is an %s", "error")
-
-	for i, tt := range tests {
-		err := Wrap(defaultErr, "prefix").AddTypes(tt.types...)
-		if !HasType(err, tt.typ) {
-			t.Fatalf("IDX: %d want %t got %t", i, true, false)
-		}
+	for i, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			if !HasType(tc.err, tc.typ) {
+				t.Fatalf("IDX: %d want %t got %t", i, true, false)
+			}
+		})
 	}
 }
 

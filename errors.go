@@ -92,17 +92,26 @@ func Cause(err error) error {
 // HasType is a helper function that will recurse up from the root error and check that the provided type
 // is present using an equality check
 func HasType(err error, typ string) bool {
-	switch t := err.(type) {
-	case Chain:
-		for i := len(t) - 1; i >= 0; i-- {
-			for j := 0; j < len(t[i].Types); j++ {
-				if t[i].Types[j] == typ {
-					return true
+	for {
+		switch t := err.(type) {
+		case Chain:
+			for i := len(t) - 1; i >= 0; i-- {
+				for j := 0; j < len(t[i].Types); j++ {
+					if t[i].Types[j] == typ {
+						return true
+					}
 				}
 			}
+			err = t[0].Err
+			continue
+		case unwrap:
+			if err = t.Unwrap(); err == nil {
+				return false
+			}
+			continue
 		}
+		return false
 	}
-	return false
 }
 
 // LookupTag recursively searches for the provided tag and returns it's value or nil
