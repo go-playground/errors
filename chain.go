@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"unsafe"
 
 	runtimeext "github.com/go-playground/pkg/v5/runtime"
+	unsafeext "github.com/go-playground/pkg/v5/unsafe"
 )
 
 var (
@@ -51,7 +51,7 @@ func (c Chain) Error() string {
 			b = append(b, '\n')
 		}
 	}
-	return *(*string)(unsafe.Pointer(&b))
+	return unsafeext.BytesToString(b)
 }
 
 // Link contains a single error entry, unless it's the top level error, in
