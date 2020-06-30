@@ -42,16 +42,13 @@ type Chain []*Link
 
 // Error returns the formatted error string
 func (c Chain) Error() string {
-	b := make([]byte, 0, len(c)*128)
+	b := make([]byte, 0, len(c)*192)
 
-	//function:file:line <prefix>: <error> tag=value tag2=value2 types=type1,type2
-	for i := len(c) - 1; i >= 0; i-- {
+	for i := 0; i < len(c); i++ {
 		b = c[i].formatError(b)
-		if i > 0 {
-			b = append(b, '\n')
-		}
+		b = append(b, '\n')
 	}
-	return unsafeext.BytesToString(b)
+	return unsafeext.BytesToString(b[:len(b)-1])
 }
 
 // Link contains a single error entry, unless it's the top level error, in
@@ -76,12 +73,21 @@ type Link struct {
 
 // formatError prints a single Links error
 func (l *Link) formatError(b []byte) []byte {
-	b = append(b, l.Source.Function()...)
-	b = append(b, ':')
-	b = append(b, l.Source.File()...)
+	b = append(b, "source="...)
+	idx := strings.LastIndexByte(l.Source.Frame.Function, '.')
+	if idx == -1 {
+		b = append(b, l.Source.File()...)
+	} else {
+		b = append(b, l.Source.Frame.Function[:idx]...)
+		b = append(b, '/')
+		b = append(b, l.Source.File()...)
+	}
 	b = append(b, ':')
 	b = strconv.AppendInt(b, int64(l.Source.Line()), 10)
+	b = append(b, ':')
+	b = append(b, l.Source.Frame.Function[idx+1:]...)
 	b = append(b, ' ')
+	b = append(b, "error="...)
 
 	if l.Prefix != "" {
 		b = append(b, l.Prefix...)
@@ -98,12 +104,47 @@ func (l *Link) formatError(b []byte) []byte {
 		b = append(b, ' ')
 		b = append(b, tag.Key...)
 		b = append(b, '=')
-		b = append(b, fmt.Sprintf("%v", tag.Value)...)
+		switch t := tag.Value.(type) {
+		case string:
+			b = append(b, t...)
+		case int:
+			b = strconv.AppendInt(b, int64(t), 10)
+		case int8:
+			b = strconv.AppendInt(b, int64(t), 10)
+		case int16:
+			b = strconv.AppendInt(b, int64(t), 10)
+		case int32:
+			b = strconv.AppendInt(b, int64(t), 10)
+		case int64:
+			b = strconv.AppendInt(b, t, 10)
+		case uint:
+			b = strconv.AppendUint(b, uint64(t), 10)
+		case uint8:
+			b = strconv.AppendUint(b, uint64(t), 10)
+		case uint16:
+			b = strconv.AppendUint(b, uint64(t), 10)
+		case uint32:
+			b = strconv.AppendUint(b, uint64(t), 10)
+		case uint64:
+			b = strconv.AppendUint(b, t, 10)
+		case float32:
+			b = strconv.AppendFloat(b, float64(t), 'g', -1, 32)
+		case float64:
+			b = strconv.AppendFloat(b, t, 'g', -1, 64)
+		case bool:
+			b = strconv.AppendBool(b, t)
+		default:
+			b = append(b, fmt.Sprintf("%v", tag.Value)...)
+		}
 	}
 
 	if len(l.Types) > 0 {
 		b = append(b, " types="...)
-		b = append(b, strings.Join(l.Types, ",")...)
+		for _, t := range l.Types {
+			b = append(b, t...)
+			b = append(b, ',')
+		}
+		b = b[:len(b)-1]
 	}
 	return b
 }

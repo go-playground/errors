@@ -5,10 +5,11 @@ import (
 	"io"
 
 	"github.com/go-playground/errors/v5"
+	nestedpackagee "github.com/go-playground/errors/v5/_examples/basic/nestedpackage"
 )
 
 func main() {
-	err := level1("testing error")
+	err := level1Function("1")
 	fmt.Println(err)
 	if errors.HasType(err, "Permanent") {
 		// os.Exit(1)
@@ -32,14 +33,14 @@ func main() {
 	}
 }
 
-func level1(value string) error {
-	if err := level2(value); err != nil {
+func level1Function(userID string) error {
+	if err := level2Function(userID); err != nil {
 		return errors.Wrap(err, "level2 call failed")
 	}
 	return nil
 }
 
-func level2(value string) error {
-	err := io.EOF
-	return errors.Wrap(err, "failed to do something").AddTypes("Permanent").AddTags(errors.T("value", value))
+func level2Function(userID string) error {
+	err := nestedpackagee.GetUser(userID)
+	return errors.Wrap(err, "GetUser something went wrong")
 }
