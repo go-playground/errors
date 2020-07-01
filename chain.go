@@ -42,13 +42,16 @@ type Chain []*Link
 
 // Error returns the formatted error string
 func (c Chain) Error() string {
-	b := make([]byte, 0, len(c)*192)
-
-	for i := 0; i < len(c); i++ {
-		b = c[i].formatError(b)
-		b = append(b, '\n')
-	}
-	return unsafeext.BytesToString(b[:len(b)-1])
+	//if errFormatFn != nil {
+	return errFormatFn(c)
+	//}
+	//b := make([]byte, 0, len(c)*192)
+	//
+	//for i := 0; i < len(c); i++ {
+	//	b = c[i].formatError(b)
+	//	b = append(b, '\n')
+	//}
+	//return unsafeext.BytesToString(b[:len(b)-1])
 }
 
 // Link contains a single error entry, unless it's the top level error, in
@@ -222,4 +225,14 @@ func (c Chain) Is(target error) bool {
 // error, or to any interface type.
 func (c Chain) As(target interface{}) bool {
 	return stderrors.As(c[len(c)-1].Err, target)
+}
+
+func defaultFormatFn(c Chain) string {
+	b := make([]byte, 0, len(c)*192)
+
+	for i := 0; i < len(c); i++ {
+		b = c[i].formatError(b)
+		b = append(b, '\n')
+	}
+	return unsafeext.BytesToString(b[:len(b)-1])
 }

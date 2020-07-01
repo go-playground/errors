@@ -1,16 +1,8 @@
 package errors
 
 import (
-	stderrors "errors"
-	"fmt"
 	"testing"
 )
-
-func BenchmarkErrorStd(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		_ = fmt.Errorf("blah %w", stderrors.New("base error"))
-	}
-}
 
 func BenchmarkErrorNew(b *testing.B) {
 	for i := 0; i < b.N; i++ {

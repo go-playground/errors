@@ -289,3 +289,14 @@ func TestAs(t *testing.T) {
 		t.Fatal("want true got false")
 	}
 }
+
+func TestCustomFormatFn(t *testing.T) {
+	RegisterErrorFormatFn(func(c Chain) (s string) {
+		return c[0].Err.Error()
+	})
+	err := io.EOF
+	err = Wrap(err, "my error prefix")
+	if err.Error() != "EOF" {
+		t.Errorf("Expected output of 'EOF'")
+	}
+}

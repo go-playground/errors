@@ -11,8 +11,11 @@ type unwrap interface{ Unwrap() error }
 type is interface{ Is(error) bool }
 type as interface{ As(interface{}) bool }
 
+type ErrorFormatFn func(Chain) string
+
 var (
-	helpers []Helper
+	helpers     []Helper
+	errFormatFn ErrorFormatFn = defaultFormatFn
 )
 
 // RegisterHelper adds a new helper function to extract Type and Tag information.
@@ -25,6 +28,11 @@ func RegisterHelper(helper Helper) {
 		}
 	}
 	helpers = append(helpers, helper)
+}
+
+// RegisterErrorFormatFn sets a custom error formatting function in order for the error output to be customizable.
+func RegisterErrorFormatFn(fn ErrorFormatFn) {
+	errFormatFn = fn
 }
 
 // New creates an error with the provided text and automatically wraps it with line information.
