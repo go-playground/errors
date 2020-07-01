@@ -1,6 +1,7 @@
 package errors
 
 import (
+	stderrors "errors"
 	"fmt"
 	"io"
 	"strings"
@@ -28,32 +29,32 @@ func TestWrap(t *testing.T) {
 		{
 			err: err0,
 			pre: "TestWrap: ",
-			suf: "errors_test.go:16",
+			suf: "errors_test.go:17",
 		},
 		{
 			err: err1,
 			pre: "TestWrap: ",
-			suf: "errors_test.go:17",
+			suf: "errors_test.go:18",
 		},
 		{
 			err: err2,
 			pre: "TestWrap: ",
-			suf: "errors_test.go:18",
+			suf: "errors_test.go:19",
 		},
 		{
 			err: err3,
 			pre: "TestWrap: ",
-			suf: "errors_test.go:19",
+			suf: "errors_test.go:20",
 		},
 		{
 			err: err4,
 			pre: "TestWrap: ",
-			suf: "errors_test.go:20",
+			suf: "errors_test.go:21",
 		},
 		{
 			err: err5,
 			pre: "TestWrap: ",
-			suf: "errors_test.go:21",
+			suf: "errors_test.go:22",
 		},
 	}
 
@@ -63,6 +64,31 @@ func TestWrap(t *testing.T) {
 		if !strings.HasSuffix(source, tt.suf) || !strings.HasPrefix(source, tt.pre) {
 			t.Fatalf("IDX: %d want %s<path>%s got %s", i, tt.pre, tt.suf, source)
 		}
+	}
+}
+
+func TestUnwrap(t *testing.T) {
+	defaultErr := stderrors.New("this is an error")
+	err := fmt.Errorf("std wrapped: %w", defaultErr)
+	err = Wrap(defaultErr, "prefix")
+	err = Wrap(err, "prefix2")
+	err = fmt.Errorf("wrapping Chain: %w", err)
+	err = fmt.Errorf("wrapping err again: %w", err)
+	err = Wrap(err, "wrapping std with chain")
+
+	for {
+		switch t := err.(type) {
+		case unwrap:
+			if unwrappedErr := t.Unwrap(); unwrappedErr != nil {
+				err = unwrappedErr
+				continue
+			}
+		}
+		break
+	}
+	expect := defaultErr.Error()
+	if err.Error() != expect {
+		t.Fatalf("want %s got %s", expect, err.Error())
 	}
 }
 
@@ -112,22 +138,30 @@ func TestTypes(t *testing.T) {
 
 func TestHasType(t *testing.T) {
 	tests := []struct {
-		types []string
-		typ   string
+		name string
+		typ  string
+		err  error
 	}{
 		{
-			types: []string{"Permanent", "internalError"},
-			typ:   "Permanent",
+			name: "basic types",
+			typ:  "Permanent",
+			err:  Wrap(fmt.Errorf("this is an %s", "error"), "prefix").AddTypes("Permanent", "internalError"),
+		},
+		{
+			name: "std wrapped",
+			typ:  "MyType",
+			err:  fmt.Errorf("std wrapped %w", New("base error").AddTypes("MyType")),
 		},
 	}
 
-	defaultErr := fmt.Errorf("this is an %s", "error")
-
-	for i, tt := range tests {
-		err := Wrap(defaultErr, "prefix").AddTypes(tt.types...)
-		if !HasType(err, tt.typ) {
-			t.Fatalf("IDX: %d want %t got %t", i, true, false)
-		}
+	for i, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			if !HasType(tc.err, tc.typ) {
+				t.Fatalf("IDX: %d want %t got %t", i, true, false)
+			}
+		})
 	}
 }
 
@@ -138,7 +172,7 @@ func TestCause(t *testing.T) {
 	cause := Cause(err)
 	expect := "this is an error"
 	if cause.Error() != expect {
-		t.Fatalf("want %s got %s", expect, err.Error())
+		t.Fatalf("want %s got %s", expect, cause.Error())
 	}
 }
 
@@ -158,6 +192,21 @@ func TestCause2(t *testing.T) {
 	}
 }
 
+func TestCauseStdErrorsMixed(t *testing.T) {
+	defaultErr := stderrors.New("this is an error")
+	err := fmt.Errorf("std wrapped: %w", defaultErr)
+	err = Wrap(defaultErr, "prefix")
+	err = Wrap(err, "prefix2")
+	err = fmt.Errorf("wrapping Chain: %w", err)
+	err = fmt.Errorf("wrapping err again: %w", err)
+	err = Wrap(err, "wrapping std with chain")
+	cause := Cause(err)
+	expect := defaultErr.Error()
+	if cause.Error() != expect {
+		t.Fatalf("want %s got %s", expect, cause.Error())
+	}
+}
+
 func TestHelpers(t *testing.T) {
 	fn := func(w Chain, _ error) (cont bool) {
 		_ = w.AddTypes("Test").AddTags(T("test", "tag")).AddTag("foo", "bar")
@@ -172,8 +221,82 @@ func TestHelpers(t *testing.T) {
 }
 
 func TestLookupTag(t *testing.T) {
-	err := Wrap(io.EOF, "prefix").AddTag("Key", "Value")
-	if LookupTag(err, "Key").(string) != "Value" {
-		t.Fatalf("want %s got %v", "Value", LookupTag(err, "Key"))
+	key := "Key"
+	value := "Value"
+
+	tests := []struct {
+		name  string
+		err   error
+		key   string
+		value interface{}
+	}{
+		{
+			name: "basic wrap",
+			err:  Wrap(io.EOF, "prefix").AddTag(key, value),
+		},
+		{
+			name: "double wrapped",
+			err:  Wrap(Wrap(io.EOF, "prefix").AddTag(key, value), "wrapped"),
+		},
+		{
+			name: "std lib wrapped",
+			err:  fmt.Errorf("wrapped %w", Wrap(io.EOF, "prefix").AddTag(key, value)),
+		},
+	}
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			if LookupTag(tc.err, key) != value {
+				t.Fatalf("want '%s' got '%v'", value, LookupTag(tc.err, key))
+			}
+		})
+	}
+}
+
+func TestIs(t *testing.T) {
+	defaultErr := io.EOF
+	err := fmt.Errorf("std wrapped: %w", defaultErr)
+	err = Wrap(defaultErr, "prefix")
+	err = Wrap(err, "prefix2")
+	err = fmt.Errorf("wrapping Chain: %w", err)
+	err = fmt.Errorf("wrapping err again: %w", err)
+	err = Wrap(err, "wrapping std with chain")
+	if !Is(err, io.EOF) {
+		t.Fatal("want true got false")
+	}
+}
+
+type myErrorType struct {
+	msg string
+}
+
+func (e *myErrorType) Error() string {
+	return e.msg
+}
+
+func TestAs(t *testing.T) {
+	defaultErr := &myErrorType{msg: "my error type"}
+	err := fmt.Errorf("std wrapped: %w", defaultErr)
+	err = Wrap(defaultErr, "prefix")
+	err = Wrap(err, "prefix2")
+	err = fmt.Errorf("wrapping Chain: %w", err)
+	err = fmt.Errorf("wrapping err again: %w", err)
+	err = Wrap(err, "wrapping std with chain")
+
+	var myErr *myErrorType
+	if !As(err, &myErr) {
+		t.Fatal("want true got false")
+	}
+}
+
+func TestCustomFormatFn(t *testing.T) {
+	RegisterErrorFormatFn(func(c Chain) (s string) {
+		return c[0].Err.Error()
+	})
+	err := io.EOF
+	err = Wrap(err, "my error prefix")
+	if err.Error() != "EOF" {
+		t.Errorf("Expected output of 'EOF'")
 	}
 }

@@ -2,12 +2,21 @@ package errors
 
 import (
 	"errors"
+	stderrors "errors"
 	"fmt"
 	"reflect"
 )
 
+type unwrap interface{ Unwrap() error }
+type is interface{ Is(error) bool }
+type as interface{ As(interface{}) bool }
+
+// ErrorFormatFn represents the error formatting function for a Chain of errors.
+type ErrorFormatFn func(Chain) string
+
 var (
-	helpers []Helper
+	helpers     []Helper
+	errFormatFn ErrorFormatFn = defaultFormatFn
 )
 
 // RegisterHelper adds a new helper function to extract Type and Tag information.
@@ -20,6 +29,11 @@ func RegisterHelper(helper Helper) {
 		}
 	}
 	helpers = append(helpers, helper)
+}
+
+// RegisterErrorFormatFn sets a custom error formatting function in order for the error output to be customizable.
+func RegisterErrorFormatFn(fn ErrorFormatFn) {
+	errFormatFn = fn
 }
 
 // New creates an error with the provided text and automatically wraps it with line information.
@@ -69,42 +83,105 @@ func wrap(err error, prefix string, skipFrames int) (c Chain) {
 
 // Cause extracts and returns the root wrapped error (the naked error with no additional information
 func Cause(err error) error {
-	switch t := err.(type) {
-	case Chain:
-		return t[0].Err
-	default:
+	for {
+		switch t := err.(type) {
+		case Chain: // fast path
+			err = t[0].Err
+			continue
+		case unwrap:
+			if unwrappedErr := t.Unwrap(); unwrappedErr != nil {
+				err = unwrappedErr
+				continue
+			}
+		}
 		return err
 	}
-	// TODO: lookup via Cause interface recursively on error
 }
 
 // HasType is a helper function that will recurse up from the root error and check that the provided type
 // is present using an equality check
 func HasType(err error, typ string) bool {
-	switch t := err.(type) {
-	case Chain:
-		for i := len(t) - 1; i >= 0; i-- {
-			for j := 0; j < len(t[i].Types); j++ {
-				if t[i].Types[j] == typ {
-					return true
+	for {
+		switch t := err.(type) {
+		case Chain:
+			for i := len(t) - 1; i >= 0; i-- {
+				for j := 0; j < len(t[i].Types); j++ {
+					if t[i].Types[j] == typ {
+						return true
+					}
 				}
 			}
+			err = t[0].Err
+			continue
+		case unwrap:
+			err = t.Unwrap()
+			continue
 		}
+		return false
 	}
-	return false
 }
 
 // LookupTag recursively searches for the provided tag and returns it's value or nil
 func LookupTag(err error, key string) interface{} {
-	switch t := err.(type) {
-	case Chain:
-		for i := len(t) - 1; i >= 0; i-- {
-			for j := 0; j < len(t[i].Tags); j++ {
-				if t[i].Tags[j].Key == key {
-					return t[i].Tags[j].Value
+	for {
+		switch t := err.(type) {
+		case Chain:
+			for i := len(t) - 1; i >= 0; i-- {
+				for j := 0; j < len(t[i].Tags); j++ {
+					if t[i].Tags[j].Key == key {
+						return t[i].Tags[j].Value
+					}
 				}
 			}
+			err = t[0].Err
+			continue
+		case unwrap:
+			err = t.Unwrap()
+			continue
 		}
+		return nil
 	}
-	return nil
+}
+
+// Is is to allow this library to be a drop-in replacement to the std library.
+//
+// Is reports whether any error in err's chain matches target.
+//
+// The chain consists of err itself followed by the sequence of errors obtained by
+// repeatedly calling Unwrap.
+//
+// An error is considered to match a target if it is equal to that target or if
+// it implements a method Is(error) bool such that Is(target) returns true.
+//
+// An error type might provide an Is method so it can be treated as equivalent
+// to an existing error. For example, if MyError defines
+//
+//	func (m MyError) Is(target error) bool { return target == os.ErrExist }
+//
+// then Is(MyError{}, os.ErrExist) returns true. See syscall.Errno.Is for
+// an example in the standard library.
+func Is(err, target error) bool {
+	return stderrors.Is(err, target)
+}
+
+// As is to allow this library to be a drop-in replacement to the std library.
+//
+// As finds the first error in err's chain that matches target, and if so, sets
+// target to that error value and returns true. Otherwise, it returns false.
+//
+// The chain consists of err itself followed by the sequence of errors obtained by
+// repeatedly calling Unwrap.
+//
+// An error matches target if the error's concrete value is assignable to the value
+// pointed to by target, or if the error has a method As(interface{}) bool such that
+// As(target) returns true. In the latter case, the As method is responsible for
+// setting target.
+//
+// An error type might provide an As method so it can be treated as if it were a
+// a different error type.
+//
+// As panics if target is not a non-nil pointer to either a type that implements
+// error, or to any interface type.
+func As(err error, target interface{}) bool {
+	return stderrors.As(err, target)
 }
