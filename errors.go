@@ -11,6 +11,7 @@ type unwrap interface{ Unwrap() error }
 type is interface{ Is(error) bool }
 type as interface{ As(interface{}) bool }
 
+// ErrorFormatFn represents the error formatting function for a Chain of errors.
 type ErrorFormatFn func(Chain) string
 
 var (
