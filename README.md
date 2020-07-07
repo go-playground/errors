@@ -1,6 +1,6 @@
 Package errors
 ============
-![Project status](https://img.shields.io/badge/version-5.1.0-green.svg)
+![Project status](https://img.shields.io/badge/version-5.1.1-green.svg)
 [![Build Status](https://travis-ci.org/go-playground/errors.svg?branch=master)](https://travis-ci.org/go-playground/errors)
 [![Go Report Card](https://goreportcard.com/badge/github.com/go-playground/errors)](https://goreportcard.com/report/github.com/go-playground/errors)
 [![GoDoc](https://godoc.org/github.com/go-playground/errors?status.svg)](https://pkg.go.dev/github.com/go-playground/errors/v5)
