@@ -10,6 +10,13 @@ func BenchmarkErrorNew(b *testing.B) {
 	}
 }
 
+func BenchmarkErrorWrap(b *testing.B) {
+	err := New("base error")
+	for i := 0; i < b.N; i++ {
+		_ = Wrap(err, "wrapped error")
+	}
+}
+
 func BenchmarkErrorParallelNew(b *testing.B) {
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
