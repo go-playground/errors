@@ -76,19 +76,37 @@ type Link struct {
 
 // formatError prints a single Links error
 func (l *Link) formatError(b []byte) []byte {
+	var funcName string
+
 	b = append(b, "source="...)
 	idx := strings.LastIndexByte(l.Source.Frame.Function, '.')
 	if idx == -1 {
 		b = append(b, l.Source.File()...)
 	} else {
-		b = append(b, l.Source.Frame.Function[:idx]...)
+		funcName = l.Source.Frame.Function[idx+1:]
+		remaining := l.Source.Frame.Function[:idx]
+
+		idx = strings.LastIndexByte(remaining, '/')
+		if idx > -1 {
+			b = append(b, l.Source.Frame.Function[:idx+1]...)
+			remaining = l.Source.Frame.Function[idx+1:]
+		}
+
+		idx = strings.IndexByte(remaining, '.')
+		if idx == -1 {
+			b = append(b, remaining...)
+		} else {
+			b = append(b, remaining[:idx]...)
+		}
 		b = append(b, '/')
 		b = append(b, l.Source.File()...)
 	}
 	b = append(b, ':')
 	b = strconv.AppendInt(b, int64(l.Source.Line()), 10)
-	b = append(b, ':')
-	b = append(b, l.Source.Frame.Function[idx+1:]...)
+	if funcName != "" {
+		b = append(b, ':')
+		b = append(b, funcName...)
+	}
 	b = append(b, ' ')
 	b = append(b, "error="...)
 
