@@ -217,15 +217,12 @@ func (c Chain) Unwrap() error {
 	return c[:len(c)-1]
 }
 
-// Is reports whether any error in err's chain matches target.
-//
-// This is here to help make it a drop in replacement to the std error handler, I highly recommend using
-// Cause + switch statement instead.
+// Is reports whether any error in error chain matches target.
 func (c Chain) Is(target error) bool {
 	return stderrors.Is(c[len(c)-1].Err, target)
 }
 
-// As finds the first error in err's chain that matches target, and if so, sets
+// As finds the first error in the error chain that matches target, and if so, sets
 // target to that error value and returns true. Otherwise, it returns false.
 //
 // The chain consists of err itself followed by the sequence of errors obtained by
@@ -236,8 +233,8 @@ func (c Chain) Is(target error) bool {
 // As(target) returns true. In the latter case, the As method is responsible for
 // setting target.
 //
-// An error type might provide an As method so it can be treated as if it were a
-// a different error type.
+// An error type might provide an As method, so it can be treated as if it were a
+// different error type.
 //
 // As panics if target is not a non-nil pointer to either a type that implements
 // error, or to any interface type.

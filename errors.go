@@ -67,6 +67,9 @@ func WrapSkipFrames(err error, prefix string, n uint) Chain {
 }
 
 func wrap(err error, prefix string, skipFrames int) (c Chain) {
+	if err == nil {
+		panic("errors: Wrap|Wrapf called with nil error")
+	}
 	var ok bool
 	if c, ok = err.(Chain); ok {
 		c = append(c, newLink(err, prefix, skipFrames))
