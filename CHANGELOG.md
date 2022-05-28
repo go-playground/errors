@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.2.0] - 2022-05-28
 ### Added
-- Wrap check for nil errors which will now panic to indicate a larger issue, the caller NOT checking an error value.
+- Wrap check for nil errors which will now panic to indicate a larger issue, the caller NOT checking an error value. This caused a panic when trying to print the error if nil error was wrapped.
 
 ### Removed
 - Deprecated information in the documentation.
