@@ -42,7 +42,7 @@ func New(s string) Chain {
 }
 
 // Newf creates an error with the provided text and automatically wraps it with line information.
-// it also accepts a varadic for optional message formatting.
+// it also accepts a variadic for optional message formatting.
 func Newf(format string, a ...interface{}) Chain {
 	return wrap(fmt.Errorf(format, a...), "", 3)
 }
@@ -55,7 +55,7 @@ func Wrap(err error, prefix string) Chain {
 
 // Wrapf encapsulates the error, stores a contextual prefix and automatically obtains
 // a stack trace.
-// it also accepts a varadic for prefix formatting.
+// it also accepts a variadic for prefix formatting.
 func Wrapf(err error, prefix string, a ...interface{}) Chain {
 	return wrap(err, fmt.Sprintf(prefix, a...), 3)
 }
@@ -84,7 +84,7 @@ func wrap(err error, prefix string, skipFrames int) (c Chain) {
 	return
 }
 
-// Cause extracts and returns the root wrapped error (the naked error with no additional information
+// Cause extracts and returns the root wrapped error (the naked error with no additional information)
 func Cause(err error) error {
 	for {
 		switch t := err.(type) {
@@ -124,7 +124,7 @@ func HasType(err error, typ string) bool {
 	}
 }
 
-// LookupTag recursively searches for the provided tag and returns it's value or nil
+// LookupTag recursively searches for the provided tag and returns its value or nil
 func LookupTag(err error, key string) interface{} {
 	for {
 		switch t := err.(type) {
@@ -146,9 +146,9 @@ func LookupTag(err error, key string) interface{} {
 	}
 }
 
-// Is is to allow this library to be a drop-in replacement to the std library.
+// Is allows this library to be a drop-in replacement to the std library.
 //
-// Is reports whether any error in err's chain matches target.
+// Is reports whether any error in the error chain matches target.
 //
 // The chain consists of err itself followed by the sequence of errors obtained by
 // repeatedly calling Unwrap.
@@ -156,7 +156,7 @@ func LookupTag(err error, key string) interface{} {
 // An error is considered to match a target if it is equal to that target or if
 // it implements a method Is(error) bool such that Is(target) returns true.
 //
-// An error type might provide an Is method so it can be treated as equivalent
+// An error type might provide an Is method, so it can be treated as equivalent
 // to an existing error. For example, if MyError defines
 //
 //	func (m MyError) Is(target error) bool { return target == os.ErrExist }
@@ -169,7 +169,7 @@ func Is(err, target error) bool {
 
 // As is to allow this library to be a drop-in replacement to the std library.
 //
-// As finds the first error in err's chain that matches target, and if so, sets
+// As finds the first error in the error chain that matches target, and if so, sets
 // target to that error value and returns true. Otherwise, it returns false.
 //
 // The chain consists of err itself followed by the sequence of errors obtained by
@@ -180,11 +180,11 @@ func Is(err, target error) bool {
 // As(target) returns true. In the latter case, the As method is responsible for
 // setting target.
 //
-// An error type might provide an As method so it can be treated as if it were a
+// An error type might provide an As method, so it can be treated as if it were
 // a different error type.
 //
 // As panics if target is not a non-nil pointer to either a type that implements
 // error, or to any interface type.
 func As(err error, target interface{}) bool {
-	return stderrors.As(err, target)
+	return stderrors.As(err, &target)
 }

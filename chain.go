@@ -42,16 +42,7 @@ type Chain []*Link
 
 // Error returns the formatted error string
 func (c Chain) Error() string {
-	//if errFormatFn != nil {
 	return errFormatFn(c)
-	//}
-	//b := make([]byte, 0, len(c)*192)
-	//
-	//for i := 0; i < len(c); i++ {
-	//	b = c[i].formatError(b)
-	//	b = append(b, '\n')
-	//}
-	//return unsafeext.BytesToString(b[:len(b)-1])
 }
 
 // Link contains a single error entry, unless it's the top level error, in
@@ -202,7 +193,7 @@ func (c Chain) Wrap(prefix string) Chain {
 	return wrap(c, prefix, 3)
 }
 
-// Unwrap returns the result of calling the Unwrap method on err, if err's
+// Unwrap returns the result of calling the Unwrap method on an error, if the errors
 // type contains an Unwrap method returning error.
 // Otherwise, Unwrap returns nil.
 //
