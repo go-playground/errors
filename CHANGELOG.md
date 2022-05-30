@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.2.1] - 2022-05-30
+### Fixed
+- Changelog pointing to wrong repo.
+
 ## [5.2.0] - 2022-05-28
 ### Added
 - Wrap check for nil errors which will now panic to indicate a larger issue, the caller NOT checking an error value. This caused a panic when trying to print the error if nil error was wrapped.
@@ -17,5 +21,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated deps.
 
 
-[Unreleased]: https://github.com/rust-playground/relay-rs/compare/v5.2.0...HEAD
-[5.2.0]: https://github.com/rust-playground/relay-rs/compare/v5.1.1...v5.2.0
+[Unreleased]: https://github.com/go-playground/errors/compare/v5.2.1...HEAD
+[5.2.1]: https://github.com/go-playground/errors/compare/v5.2.0...v5.2.1
+[5.2.0]: https://github.com/go-playground/errors/compare/v5.1.1...v5.2.0
