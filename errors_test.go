@@ -70,10 +70,15 @@ func TestWrap(t *testing.T) {
 func TestUnwrap(t *testing.T) {
 	defaultErr := stderrors.New("this is an error")
 	err := fmt.Errorf("std wrapped: %w", defaultErr)
+	assertError(t, err)
 	err = Wrap(defaultErr, "prefix")
+	assertError(t, err)
 	err = Wrap(err, "prefix2")
+	assertError(t, err)
 	err = fmt.Errorf("wrapping Chain: %w", err)
+	assertError(t, err)
 	err = fmt.Errorf("wrapping err again: %w", err)
+	assertError(t, err)
 	err = Wrap(err, "wrapping std with chain")
 
 	for {
@@ -89,6 +94,12 @@ func TestUnwrap(t *testing.T) {
 	expect := defaultErr.Error()
 	if err.Error() != expect {
 		t.Fatalf("want %s got %s", expect, err.Error())
+	}
+}
+
+func assertError(t *testing.T, err error) {
+	if err == nil {
+		t.Fatal("err is nil")
 	}
 }
 
@@ -195,10 +206,15 @@ func TestCause2(t *testing.T) {
 func TestCauseStdErrorsMixed(t *testing.T) {
 	defaultErr := stderrors.New("this is an error")
 	err := fmt.Errorf("std wrapped: %w", defaultErr)
+	assertError(t, err)
 	err = Wrap(defaultErr, "prefix")
+	assertError(t, err)
 	err = Wrap(err, "prefix2")
+	assertError(t, err)
 	err = fmt.Errorf("wrapping Chain: %w", err)
+	assertError(t, err)
 	err = fmt.Errorf("wrapping err again: %w", err)
+	assertError(t, err)
 	err = Wrap(err, "wrapping std with chain")
 	cause := Cause(err)
 	expect := defaultErr.Error()
@@ -228,7 +244,7 @@ func TestLookupTag(t *testing.T) {
 		name  string
 		err   error
 		key   string
-		value interface{}
+		value any
 	}{
 		{
 			name: "basic wrap",
@@ -257,10 +273,15 @@ func TestLookupTag(t *testing.T) {
 func TestIs(t *testing.T) {
 	defaultErr := io.EOF
 	err := fmt.Errorf("std wrapped: %w", defaultErr)
+	assertError(t, err)
 	err = Wrap(defaultErr, "prefix")
+	assertError(t, err)
 	err = Wrap(err, "prefix2")
+	assertError(t, err)
 	err = fmt.Errorf("wrapping Chain: %w", err)
+	assertError(t, err)
 	err = fmt.Errorf("wrapping err again: %w", err)
+	assertError(t, err)
 	err = Wrap(err, "wrapping std with chain")
 	if !Is(err, io.EOF) {
 		t.Fatal("want true got false")
@@ -278,10 +299,15 @@ func (e *myErrorType) Error() string {
 func TestAs(t *testing.T) {
 	defaultErr := &myErrorType{msg: "my error type"}
 	err := fmt.Errorf("std wrapped: %w", defaultErr)
+	assertError(t, err)
 	err = Wrap(defaultErr, "prefix")
+	assertError(t, err)
 	err = Wrap(err, "prefix2")
+	assertError(t, err)
 	err = fmt.Errorf("wrapping Chain: %w", err)
+	assertError(t, err)
 	err = fmt.Errorf("wrapping err again: %w", err)
+	assertError(t, err)
 	err = Wrap(err, "wrapping std with chain")
 
 	var myErr *myErrorType

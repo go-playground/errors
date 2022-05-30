@@ -17,7 +17,7 @@ var (
 )
 
 // T is a shortcut to make a Tag
-func T(key string, value interface{}) Tag {
+func T(key string, value any) Tag {
 	return Tag{Key: key, Value: value}
 }
 
@@ -25,7 +25,7 @@ func T(key string, value interface{}) Tag {
 // to be attached to your error
 type Tag struct {
 	Key   string
-	Value interface{}
+	Value any
 }
 
 func newLink(err error, prefix string, skipFrames int) *Link {
@@ -42,16 +42,7 @@ type Chain []*Link
 
 // Error returns the formatted error string
 func (c Chain) Error() string {
-	//if errFormatFn != nil {
 	return errFormatFn(c)
-	//}
-	//b := make([]byte, 0, len(c)*192)
-	//
-	//for i := 0; i < len(c); i++ {
-	//	b = c[i].formatError(b)
-	//	b = append(b, '\n')
-	//}
-	//return unsafeext.BytesToString(b[:len(b)-1])
 }
 
 // Link contains a single error entry, unless it's the top level error, in
@@ -186,7 +177,7 @@ func (c Chain) AddTags(tags ...Tag) Chain {
 }
 
 // AddTag allows the addition of a single tag
-func (c Chain) AddTag(key string, value interface{}) Chain {
+func (c Chain) AddTag(key string, value any) Chain {
 	return c.AddTags(Tag{Key: key, Value: value})
 }
 
@@ -202,7 +193,7 @@ func (c Chain) Wrap(prefix string) Chain {
 	return wrap(c, prefix, 3)
 }
 
-// Unwrap returns the result of calling the Unwrap method on err, if err's
+// Unwrap returns the result of calling the Unwrap method on an error, if the errors
 // type contains an Unwrap method returning error.
 // Otherwise, Unwrap returns nil.
 //
@@ -217,31 +208,28 @@ func (c Chain) Unwrap() error {
 	return c[:len(c)-1]
 }
 
-// Is reports whether any error in err's chain matches target.
-//
-// This is here to help make it a drop in replacement to the std error handler, I highly recommend using
-// Cause + switch statement instead.
+// Is reports whether any error in error chain matches target.
 func (c Chain) Is(target error) bool {
 	return stderrors.Is(c[len(c)-1].Err, target)
 }
 
-// As finds the first error in err's chain that matches target, and if so, sets
+// As finds the first error in the error chain that matches target, and if so, sets
 // target to that error value and returns true. Otherwise, it returns false.
 //
 // The chain consists of err itself followed by the sequence of errors obtained by
 // repeatedly calling Unwrap.
 //
 // An error matches target if the error's concrete value is assignable to the value
-// pointed to by target, or if the error has a method As(interface{}) bool such that
+// pointed to by target, or if the error has a method As(any) bool such that
 // As(target) returns true. In the latter case, the As method is responsible for
 // setting target.
 //
-// An error type might provide an As method so it can be treated as if it were a
-// a different error type.
+// An error type might provide an As method, so it can be treated as if it were a
+// different error type.
 //
 // As panics if target is not a non-nil pointer to either a type that implements
 // error, or to any interface type.
-func (c Chain) As(target interface{}) bool {
+func (c Chain) As(target any) bool {
 	return stderrors.As(c[len(c)-1].Err, target)
 }
 
