@@ -9,7 +9,7 @@ import (
 
 type unwrap interface{ Unwrap() error }
 type is interface{ Is(error) bool }
-type as interface{ As(interface{}) bool }
+type as interface{ As(any) bool }
 
 // ErrorFormatFn represents the error formatting function for a Chain of errors.
 type ErrorFormatFn func(Chain) string
@@ -43,7 +43,7 @@ func New(s string) Chain {
 
 // Newf creates an error with the provided text and automatically wraps it with line information.
 // it also accepts a variadic for optional message formatting.
-func Newf(format string, a ...interface{}) Chain {
+func Newf(format string, a ...any) Chain {
 	return wrap(fmt.Errorf(format, a...), "", 3)
 }
 
@@ -56,7 +56,7 @@ func Wrap(err error, prefix string) Chain {
 // Wrapf encapsulates the error, stores a contextual prefix and automatically obtains
 // a stack trace.
 // it also accepts a variadic for prefix formatting.
-func Wrapf(err error, prefix string, a ...interface{}) Chain {
+func Wrapf(err error, prefix string, a ...any) Chain {
 	return wrap(err, fmt.Sprintf(prefix, a...), 3)
 }
 
@@ -125,7 +125,7 @@ func HasType(err error, typ string) bool {
 }
 
 // LookupTag recursively searches for the provided tag and returns its value or nil
-func LookupTag(err error, key string) interface{} {
+func LookupTag(err error, key string) any {
 	for {
 		switch t := err.(type) {
 		case Chain:
@@ -176,7 +176,7 @@ func Is(err, target error) bool {
 // repeatedly calling Unwrap.
 //
 // An error matches target if the error's concrete value is assignable to the value
-// pointed to by target, or if the error has a method As(interface{}) bool such that
+// pointed to by target, or if the error has a method As(any) bool such that
 // As(target) returns true. In the latter case, the As method is responsible for
 // setting target.
 //
@@ -185,6 +185,6 @@ func Is(err, target error) bool {
 //
 // As panics if target is not a non-nil pointer to either a type that implements
 // error, or to any interface type.
-func As(err error, target interface{}) bool {
+func As(err error, target any) bool {
 	return stderrors.As(err, &target)
 }

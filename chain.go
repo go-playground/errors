@@ -17,7 +17,7 @@ var (
 )
 
 // T is a shortcut to make a Tag
-func T(key string, value interface{}) Tag {
+func T(key string, value any) Tag {
 	return Tag{Key: key, Value: value}
 }
 
@@ -25,7 +25,7 @@ func T(key string, value interface{}) Tag {
 // to be attached to your error
 type Tag struct {
 	Key   string
-	Value interface{}
+	Value any
 }
 
 func newLink(err error, prefix string, skipFrames int) *Link {
@@ -177,7 +177,7 @@ func (c Chain) AddTags(tags ...Tag) Chain {
 }
 
 // AddTag allows the addition of a single tag
-func (c Chain) AddTag(key string, value interface{}) Chain {
+func (c Chain) AddTag(key string, value any) Chain {
 	return c.AddTags(Tag{Key: key, Value: value})
 }
 
@@ -220,7 +220,7 @@ func (c Chain) Is(target error) bool {
 // repeatedly calling Unwrap.
 //
 // An error matches target if the error's concrete value is assignable to the value
-// pointed to by target, or if the error has a method As(interface{}) bool such that
+// pointed to by target, or if the error has a method As(any) bool such that
 // As(target) returns true. In the latter case, the As method is responsible for
 // setting target.
 //
@@ -229,7 +229,7 @@ func (c Chain) Is(target error) bool {
 //
 // As panics if target is not a non-nil pointer to either a type that implements
 // error, or to any interface type.
-func (c Chain) As(target interface{}) bool {
+func (c Chain) As(target any) bool {
 	return stderrors.As(c[len(c)-1].Err, target)
 }
 

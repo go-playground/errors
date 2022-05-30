@@ -244,7 +244,7 @@ func TestLookupTag(t *testing.T) {
 		name  string
 		err   error
 		key   string
-		value interface{}
+		value any
 	}{
 		{
 			name: "basic wrap",
