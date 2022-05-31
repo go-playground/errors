@@ -75,10 +75,10 @@ func wrap(err error, prefix string, skipFrames int) (c Chain) {
 		c = append(c, newLink(err, prefix, skipFrames))
 	} else {
 		c = Chain{newLink(err, prefix, skipFrames)}
-	}
-	for _, h := range helpers {
-		if !h(c, err) {
-			break
+		for _, h := range helpers {
+			if !h(c, err) {
+				break
+			}
 		}
 	}
 	return
