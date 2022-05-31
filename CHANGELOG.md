@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.2.3] - 2022-05-30
+### Fixed
+- Fixed errors.As wrapper, linter is wrong.
+
 ## [5.2.2] - 2022-05-30
 ### Fixed
 - Fixed calling error helpers on first wrap only, where the source of the data will be.
@@ -25,7 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated deps.
 
 
-[Unreleased]: https://github.com/go-playground/errors/compare/v5.2.2...HEAD
+[Unreleased]: https://github.com/go-playground/errors/compare/v5.2.3...HEAD
+[5.2.3]: https://github.com/go-playground/errors/compare/v5.2.2...v5.2.3
 [5.2.2]: https://github.com/go-playground/errors/compare/v5.2.1...v5.2.2
 [5.2.1]: https://github.com/go-playground/errors/compare/v5.2.0...v5.2.1
 [5.2.0]: https://github.com/go-playground/errors/compare/v5.1.1...v5.2.0
