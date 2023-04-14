@@ -45,8 +45,7 @@ func (c Chain) Error() string {
 	return errFormatFn(c)
 }
 
-// Link contains a single error entry, unless it's the top level error, in
-// which case it only contains an array of errors
+// Link contains a single error entry contained in an error Chain.
 type Link struct {
 
 	// Err is the wrapped error, either the original or already wrapped
@@ -63,6 +62,11 @@ type Link struct {
 
 	// Source contains the name, file and lines obtained from the stack trace
 	Source runtimeext.Frame
+}
+
+// Error prints out a single Link in the Chains error.
+func (l *Link) Error() string {
+	return unsafeext.BytesToString(l.formatError(make([]byte, 0, 64)))
 }
 
 // formatError prints a single Links error
