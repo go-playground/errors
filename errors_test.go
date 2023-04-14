@@ -167,6 +167,7 @@ func TestHasType(t *testing.T) {
 
 	for i, tc := range tests {
 		tc := tc
+		i := i
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			if !HasType(tc.err, tc.typ) {
