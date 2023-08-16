@@ -34,7 +34,6 @@ func newLink(err error, prefix string, skipFrames int) *Link {
 		Prefix: prefix,
 		Source: runtimeext.StackLevel(skipFrames),
 	}
-
 }
 
 // Chain contains the chained errors, the links, of the chains if you will
@@ -214,7 +213,16 @@ func (c Chain) Unwrap() error {
 
 // Is reports whether any error in error chain matches target.
 func (c Chain) Is(target error) bool {
-	return stderrors.Is(c[len(c)-1].Err, target)
+	if len(c) == 0 {
+		return false
+	}
+	if innerErr, ok := target.(Chain); ok {
+		if len(innerErr) == 0 {
+			return false
+		}
+		target = innerErr[0].Err
+	}
+	return stderrors.Is(c[0].Err, target)
 }
 
 // As finds the first error in the error chain that matches target, and if so, sets
@@ -234,7 +242,10 @@ func (c Chain) Is(target error) bool {
 // As panics if target is not a non-nil pointer to either a type that implements
 // error, or to any interface type.
 func (c Chain) As(target any) bool {
-	return stderrors.As(c[len(c)-1].Err, target)
+	if len(c) == 0 {
+		return false
+	}
+	return stderrors.As(c[0].Err, target)
 }
 
 func defaultFormatFn(c Chain) string {
