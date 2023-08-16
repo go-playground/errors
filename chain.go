@@ -107,11 +107,13 @@ func (l *Link) formatError(b []byte) []byte {
 
 	if l.Prefix != "" {
 		b = append(b, l.Prefix...)
+	}
 
-		if l.Err != nil {
+	if l.Err != nil {
+		if l.Prefix != "" {
 			b = append(b, ": "...)
-			b = append(b, l.Err.Error()...)
 		}
+		b = append(b, l.Err.Error()...)
 	}
 
 	for _, tag := range l.Tags {
