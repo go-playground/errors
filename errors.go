@@ -74,13 +74,13 @@ func wrap(err error, prefix string, skipFrames int) (c Chain) {
 		c = append(c, newLink(nil, prefix, skipFrames))
 	} else {
 		c = Chain{newLink(err, "", skipFrames)}
-		if prefix != "" {
-			c = append(c, &Link{Prefix: prefix, Source: c[0].Source})
-		}
 		for _, h := range helpers {
 			if !h(c, err) {
 				break
 			}
+		}
+		if prefix != "" {
+			c = append(c, &Link{Prefix: prefix, Source: c[0].Source})
 		}
 	}
 	return
