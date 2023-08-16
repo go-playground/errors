@@ -6,7 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [5.3.1] - 2023-08-16
+## [5.3.2] - 2023-08-16
+### Fixed
+- Link Error output missing error when prefix was blank.
+
+## [5.3.1] - 2023-08-15
 ### Fixed
 - Wrap recursively wrapping the Chain itself instead of only adding another Link.
 
@@ -37,7 +41,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated deps.
 
 
-[Unreleased]: https://github.com/go-playground/errors/compare/v5.3.1...HEAD
+[Unreleased]: https://github.com/go-playground/errors/compare/v5.3.2...HEAD
+[5.3.2]: https://github.com/go-playground/errors/compare/v5.3.1...v5.3.2
 [5.3.1]: https://github.com/go-playground/errors/compare/v5.3.0...v5.3.1
 [5.3.0]: https://github.com/go-playground/errors/compare/v5.2.3...v5.3.0
 [5.2.3]: https://github.com/go-playground/errors/compare/v5.2.2...v5.2.3
