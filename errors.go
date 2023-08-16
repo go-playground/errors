@@ -1,7 +1,6 @@
 package errors
 
 import (
-	"errors"
 	stderrors "errors"
 	"fmt"
 	"reflect"
@@ -38,7 +37,7 @@ func RegisterErrorFormatFn(fn ErrorFormatFn) {
 
 // New creates an error with the provided text and automatically wraps it with line information.
 func New(s string) Chain {
-	return wrap(errors.New(s), "", 3)
+	return wrap(stderrors.New(s), "", 3)
 }
 
 // Newf creates an error with the provided text and automatically wraps it with line information.

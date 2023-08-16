@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.3.3] - 2023-08-16
+### Fixed
+- First error inconsistently wrapped with error and prefix instead of err then prefix in the chain.
+
 ## [5.3.2] - 2023-08-16
 ### Fixed
 - Link Error output missing error when prefix was blank.
@@ -41,7 +45,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated deps.
 
 
-[Unreleased]: https://github.com/go-playground/errors/compare/v5.3.2...HEAD
+[Unreleased]: https://github.com/go-playground/errors/compare/v5.3.3...HEAD
+[5.3.3]: https://github.com/go-playground/errors/compare/v5.3.2...v5.3.3
 [5.3.2]: https://github.com/go-playground/errors/compare/v5.3.1...v5.3.2
 [5.3.1]: https://github.com/go-playground/errors/compare/v5.3.0...v5.3.1
 [5.3.0]: https://github.com/go-playground/errors/compare/v5.2.3...v5.3.0
