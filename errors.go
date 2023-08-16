@@ -72,7 +72,7 @@ func wrap(err error, prefix string, skipFrames int) (c Chain) {
 	}
 	var ok bool
 	if c, ok = err.(Chain); ok {
-		c = append(c, newLink(err, prefix, skipFrames))
+		c = append(c, newLink(nil, prefix, skipFrames))
 	} else {
 		c = Chain{newLink(err, prefix, skipFrames)}
 		for _, h := range helpers {
