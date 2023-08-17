@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [5.3.3] - 2023-08-16
 ### Fixed
 - First error inconsistently wrapped with error and prefix instead of err then prefix in the chain.
+- Corrected Is & As functions to directly causal error.
 
 ## [5.3.2] - 2023-08-16
 ### Fixed
