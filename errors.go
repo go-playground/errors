@@ -1,7 +1,6 @@
 package errors
 
 import (
-	"errors"
 	stderrors "errors"
 	"fmt"
 	"reflect"
@@ -38,7 +37,7 @@ func RegisterErrorFormatFn(fn ErrorFormatFn) {
 
 // New creates an error with the provided text and automatically wraps it with line information.
 func New(s string) Chain {
-	return wrap(errors.New(s), "", 3)
+	return wrap(stderrors.New(s), "", 3)
 }
 
 // Newf creates an error with the provided text and automatically wraps it with line information.
@@ -74,11 +73,14 @@ func wrap(err error, prefix string, skipFrames int) (c Chain) {
 	if c, ok = err.(Chain); ok {
 		c = append(c, newLink(nil, prefix, skipFrames))
 	} else {
-		c = Chain{newLink(err, prefix, skipFrames)}
+		c = Chain{newLink(err, "", skipFrames)}
 		for _, h := range helpers {
 			if !h(c, err) {
 				break
 			}
+		}
+		if prefix != "" {
+			c = append(c, &Link{Prefix: prefix, Source: c[0].Source})
 		}
 	}
 	return
