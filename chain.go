@@ -222,7 +222,7 @@ func (c Chain) Is(target error) bool {
 		}
 		target = innerErr[0].Err
 	}
-	return stderrors.Is(c[len(c)-1].Err, target)
+	return stderrors.Is(c[0].Err, target)
 }
 
 // As finds the first error in the error chain that matches target, and if so, sets
@@ -245,7 +245,7 @@ func (c Chain) As(target any) bool {
 	if len(c) == 0 {
 		return false
 	}
-	return stderrors.As(c[len(c)-1].Err, target)
+	return stderrors.As(c[0].Err, target)
 }
 
 func defaultFormatFn(c Chain) string {
